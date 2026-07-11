@@ -202,12 +202,21 @@ input {
   font-size: 0.9rem;
 }
 
+.order-list__item--clickable {
+  cursor: pointer;
+}
+
 .order-list__id {
   font-weight: 600;
 }
 
 .order-list__status {
   color: var(--color-primary);
+  font-size: 0.85rem;
+}
+
+.order-list__contact {
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
@@ -230,6 +239,24 @@ input {
 .order-list__pagination button:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.order-detail__back {
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  font-weight: 600;
+  padding: 0 0 8px;
+}
+
+.order-detail__section-title {
+  font-size: 1rem;
+  margin: 0 0 8px;
+}
+
+.order-detail__description {
+  color: var(--color-text-muted);
+  margin: 8px 0 0;
 }
 
 /* Scale up padding once we're past phone width */

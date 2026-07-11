@@ -67,6 +67,15 @@ export async function loginByKey(apiKey: string): Promise<LoginResult> {
 // ShipOrderController — see memory/project_shiporder_api.md, more actions
 // will be added under this same base route over time.
 
+export interface AddressBookModel {
+  address1?: string | null;
+  address2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  zipCode?: string | null;
+  country?: string | null;
+}
+
 export interface ShipOrderDto {
   company: string;
   orderId: string;
@@ -81,6 +90,7 @@ export interface ShipOrderDto {
   carrierId: string | null;
   carrierName: string | null;
   custAccountModel: { name: string } | null;
+  toAddressModel?: AddressBookModel | null;
 }
 
 export interface PagedOrderResult<T> {
@@ -102,6 +112,18 @@ export async function getMyOrders(
 
   if (!response.ok) {
     throw new Error(`GetMyOrders failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrderDto> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrder/GetOrder/${encodeURIComponent(orderId)}`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+
+  if (!response.ok) {
+    throw new Error(`GetOrder failed with status ${response.status}`);
   }
 
   return response.json();

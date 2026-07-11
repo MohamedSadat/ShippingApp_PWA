@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../../auth/AuthContext";
 import { getMyOrders, type ShipOrderDto } from "../../../lib/unifiedApi";
+import { formatDate } from "../../../lib/formatDate";
 
 const PAGE_SIZE = 30;
 
 export function MyShipment() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [orders, setOrders] = useState<ShipOrderDto[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [pageNumber, setPageNumber] = useState(1);
@@ -52,14 +55,21 @@ export function MyShipment() {
       {!loading && !error && orders.length > 0 && (
         <ul className="order-list">
           {orders.map((order) => (
-            <li key={order.orderId} className="order-list__item">
+            <li
+              key={order.orderId}
+              className="order-list__item order-list__item--clickable"
+              onClick={() => navigate(`/customer/shipments/${order.orderId}`)}
+            >
               <div className="order-list__row">
                 <span className="order-list__id">{order.orderId}</span>
                 <span className="order-list__status">{order.orderStatus}</span>
               </div>
               <div className="order-list__row">
-                <span className="order-list__date">{new Date(order.orderDate).toLocaleDateString()}</span>
+                <span className="order-list__date">{formatDate(order.orderDate)}</span>
                 <span className="order-list__cod">COD {order.codAmount.toFixed(2)}</span>
+              </div>
+              <div className="order-list__row">
+                <span className="order-list__contact">{order.contactName}</span>
               </div>
             </li>
           ))}
