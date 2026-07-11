@@ -66,6 +66,8 @@ export const ar: TranslationSchema = {
   },
   myAccount: {
     title: "حسابي",
+    balance: "رصيد الحساب",
+    balanceUnavailable: "رصيد الحساب غير متاح. سجّل الدخول مرة أخرى لتحديث حسابك.",
   },
   settings: {
     title: "الإعدادات",

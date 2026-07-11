@@ -258,6 +258,12 @@ input {
   margin: 0 0 8px;
 }
 
+.account-balance__amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}
+
 .order-detail__description {
   color: var(--color-text-muted);
   margin: 8px 0 0;

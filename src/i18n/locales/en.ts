@@ -64,6 +64,8 @@ export const en = {
   },
   myAccount: {
     title: "My Account",
+    balance: "Account Balance",
+    balanceUnavailable: "Account balance is unavailable. Sign in again to refresh your account.",
   },
   settings: {
     title: "Settings",

@@ -128,3 +128,17 @@ export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrd
 
   return response.json();
 }
+
+// PartnerController — see memory/project_partner_api.md
+
+export async function getAccountBalance(apiKey: string, accountId: string): Promise<number> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/Partner/GetAccountBalance/${encodeURIComponent(accountId)}`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+
+  if (!response.ok) {
+    throw new Error(`GetAccountBalance failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
