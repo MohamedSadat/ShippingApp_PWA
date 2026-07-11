@@ -18,7 +18,7 @@ export function LoginPage() {
   const [mode, setMode] = useState<Mode>("credentials");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [company, setCompany] = useState("");
+  const [company, setCompany] = useState("Dot");
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -122,12 +122,10 @@ export function LoginPage() {
             className="login-input"
             autoComplete="current-password"
           />
-          <input
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
-            placeholder="Company"
-            className="login-input"
-          />
+          <select value={company} onChange={(e) => setCompany(e.target.value)} className="login-input">
+            <option value="Dot">Dotbox</option>
+            <option value="Kit">Test</option>
+          </select>
           {error && <p style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p>}
           <button type="submit" disabled={submitting}>
             {submitting ? "Signing in..." : "Sign In"}
