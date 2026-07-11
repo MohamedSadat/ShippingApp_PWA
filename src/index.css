@@ -78,6 +78,12 @@ input {
   padding: 16px;
 }
 
+.login-logo {
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+}
+
 .card {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

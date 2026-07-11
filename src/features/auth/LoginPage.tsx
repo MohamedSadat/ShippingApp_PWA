@@ -86,6 +86,7 @@ export function LoginPage() {
 
   return (
     <section className="page page--centered">
+      <img src={import.meta.env.VITE_LOGO_URL} alt="CashGear" className="login-logo" />
       <h1>Shipping App</h1>
       <p>Sign in to continue.</p>
       <div className="login-mode-toggle">
