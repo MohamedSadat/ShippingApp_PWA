@@ -1,10 +1,12 @@
 import { NavLink } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { NAV_ACCESS, type Role } from "../auth/roles";
 import { useAuth } from "../auth/AuthContext";
 import "./NavBar.css";
 
 export function NavBar({ role }: { role: Role }) {
   const { signOut } = useAuth();
+  const { t } = useTranslation();
   const items = NAV_ACCESS[role];
 
   return (
@@ -16,11 +18,11 @@ export function NavBar({ role }: { role: Role }) {
           end={item.end}
           className={({ isActive }) => `nav-bar__link${isActive ? " nav-bar__link--active" : ""}`}
         >
-          {item.label}
+          {t(item.labelKey)}
         </NavLink>
       ))}
       <button type="button" className="nav-bar__link nav-bar__signout" onClick={signOut}>
-        Sign out
+        {t("nav.signOut")}
       </button>
     </nav>
   );

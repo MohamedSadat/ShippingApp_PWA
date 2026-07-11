@@ -14,7 +14,8 @@ export function roleForUserType(userType: UserType): Role {
 
 export interface NavItem {
   path: string;
-  label: string;
+  /** i18next key for the nav label, resolved in NavBar via useTranslation */
+  labelKey: string;
   /** relative to the role's base path, e.g. "" for index */
   end?: boolean;
 }
@@ -27,17 +28,17 @@ export interface NavItem {
  */
 export const NAV_ACCESS: Record<Role, NavItem[]> = {
   customer: [
-    { path: "/customer", label: "Dashboard", end: true },
-    { path: "/customer/shipments", label: "My Shipment" },
-    { path: "/customer/shipments/new", label: "Add Shipment" },
-    { path: "/customer/account", label: "My Account" },
-    { path: "/customer/settings", label: "Settings" },
+    { path: "/customer", labelKey: "nav.dashboard", end: true },
+    { path: "/customer/shipments", labelKey: "nav.myShipment" },
+    { path: "/customer/shipments/new", labelKey: "nav.addShipment" },
+    { path: "/customer/account", labelKey: "nav.myAccount" },
+    { path: "/customer/settings", labelKey: "nav.settings" },
   ],
   agent: [
-    { path: "/agent", label: "Manifest", end: true },
-    { path: "/agent/scan/pickup", label: "Pickup Scan" },
-    { path: "/agent/scan/delivery", label: "Delivery Scan" },
-    { path: "/agent/cod", label: "COD" },
+    { path: "/agent", labelKey: "nav.manifest", end: true },
+    { path: "/agent/scan/pickup", labelKey: "nav.pickupScan" },
+    { path: "/agent/scan/delivery", labelKey: "nav.deliveryScan" },
+    { path: "/agent/cod", labelKey: "nav.cod" },
   ],
 };
 

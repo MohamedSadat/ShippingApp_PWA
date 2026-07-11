@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { getOrder, type ShipOrderDto } from "../../../lib/unifiedApi";
 import { formatDate } from "../../../lib/formatDate";
@@ -7,6 +8,7 @@ import { formatDate } from "../../../lib/formatDate";
 export function OrderPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const { orderId } = useParams<{ orderId: string }>();
   const [order, setOrder] = useState<ShipOrderDto | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,7 +24,7 @@ export function OrderPage() {
         if (!cancelled) setOrder(result);
       })
       .catch(() => {
-        if (!cancelled) setError("Unable to load this shipment. Check your connection and try again.");
+        if (!cancelled) setError(t("orderPage.error"));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -30,7 +32,7 @@ export function OrderPage() {
     return () => {
       cancelled = true;
     };
-  }, [user, orderId]);
+  }, [user, orderId, t]);
 
   const address = order?.toAddressModel;
   const addressLines = address
@@ -42,16 +44,16 @@ export function OrderPage() {
   return (
     <section className="page">
       <button type="button" className="order-detail__back" onClick={() => navigate(-1)}>
-        &larr; Back
+        {t("common.back")}
       </button>
-      <h1>Shipment {orderId}</h1>
+      <h1>{t("orderPage.title", { orderId })}</h1>
 
-      {loading && <p className="card__placeholder">Loading shipment...</p>}
+      {loading && <p className="card__placeholder">{t("orderPage.loading")}</p>}
       {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
 
       {!loading && !error && !order && (
         <div className="card">
-          <p className="card__placeholder">Shipment not found.</p>
+          <p className="card__placeholder">{t("orderPage.notFound")}</p>
         </div>
       )}
 
@@ -69,7 +71,7 @@ export function OrderPage() {
           </div>
 
           <div className="card">
-            <h2 className="order-detail__section-title">Recipient</h2>
+            <h2 className="order-detail__section-title">{t("orderPage.recipient")}</h2>
             <p>{order.contactName}</p>
             {order.custAccountModel?.name && <p className="card__placeholder">{order.custAccountModel.name}</p>}
             {addressLines.map((line, i) => (
@@ -80,18 +82,18 @@ export function OrderPage() {
           </div>
 
           <div className="card">
-            <h2 className="order-detail__section-title">Carrier</h2>
-            <p>{order.carrierName ?? "Not assigned"}</p>
+            <h2 className="order-detail__section-title">{t("orderPage.carrier")}</h2>
+            <p>{order.carrierName ?? t("common.notAssigned")}</p>
           </div>
 
           <div className="card">
-            <h2 className="order-detail__section-title">Charges</h2>
+            <h2 className="order-detail__section-title">{t("orderPage.charges")}</h2>
             <div className="order-list__row">
-              <span>COD Amount</span>
+              <span>{t("orderPage.codAmount")}</span>
               <span>{order.codAmount.toFixed(2)}</span>
             </div>
             <div className="order-list__row">
-              <span>Freight Amount</span>
+              <span>{t("orderPage.freightAmount")}</span>
               <span>{order.freightAmount.toFixed(2)}</span>
             </div>
           </div>

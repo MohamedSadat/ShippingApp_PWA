@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from "react";
+import { useTranslation } from "react-i18next";
 import { recordScan } from "../../../lib/scanQueue";
 import { useScanQueueSync } from "../../../lib/useScanQueueSync";
 
 export function ScanDelivery() {
+  const { t } = useTranslation();
   const [waybillId, setWaybillId] = useState("");
   const [status, setStatus] = useState<string | null>(null);
   useScanQueueSync();
@@ -12,22 +14,22 @@ export function ScanDelivery() {
     e.preventDefault();
     if (!waybillId) return;
     await recordScan("delivery", waybillId);
-    setStatus(`Delivery queued for ${waybillId}`);
+    setStatus(t("scanDelivery.queued", { id: waybillId }));
     setWaybillId("");
   }
 
   return (
     <section className="page">
-      <h1>Delivery scan</h1>
+      <h1>{t("scanDelivery.title")}</h1>
       <form onSubmit={handleScan} className="scan-form">
-        <label htmlFor="waybillId">Waybill ID</label>
+        <label htmlFor="waybillId">{t("scanDelivery.waybillLabel")}</label>
         <input
           id="waybillId"
           value={waybillId}
           onChange={(e) => setWaybillId(e.target.value)}
-          placeholder="Scan or enter waybill ID"
+          placeholder={t("scanDelivery.waybillPlaceholder")}
         />
-        <button type="submit">Record delivery</button>
+        <button type="submit">{t("scanDelivery.submit")}</button>
       </form>
       {status && <p className="scan-form__status">{status}</p>}
     </section>
