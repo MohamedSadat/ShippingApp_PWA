@@ -68,8 +68,13 @@ export function MyShipment() {
               </div>
               <div className="order-list__row">
                 <span className="order-list__date">{formatDate(order.orderDate)}</span>
-                <span className="order-list__cod">{t("myShipment.cod", { amount: order.codAmount.toFixed(2) })}</span>
+                <span className="order-list__cod">{order.codAmount.toFixed(2)}</span>
               </div>
+              {order.description && (
+                <div className="order-list__row">
+                  <span className="order-list__description">{order.description}</span>
+                </div>
+              )}
               <div className="order-list__row">
                 <span className="order-list__contact">{order.contactName}</span>
               </div>

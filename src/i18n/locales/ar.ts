@@ -45,7 +45,6 @@ export const ar: TranslationSchema = {
     title: "شحناتي",
     loading: "جارٍ تحميل الشحنات...",
     noShipments: "لا توجد شحنات لعرضها بعد.",
-    cod: "الدفع عند الاستلام {{amount}}",
     previous: "السابق",
     next: "التالي",
     page: "صفحة {{page}}",

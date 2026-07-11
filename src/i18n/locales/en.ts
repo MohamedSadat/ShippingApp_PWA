@@ -43,7 +43,6 @@ export const en = {
     title: "My Shipment",
     loading: "Loading shipments...",
     noShipments: "No shipments to show yet.",
-    cod: "COD {{amount}}",
     previous: "Previous",
     next: "Next",
     page: "Page {{page}}",
