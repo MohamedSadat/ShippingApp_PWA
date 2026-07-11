@@ -142,3 +142,48 @@ export async function getAccountBalance(apiKey: string, accountId: string): Prom
 
   return response.json();
 }
+
+// PushController — see memory/project_unifiedapi_auth.md for the X-Api-Key pattern.
+
+export async function getPushPublicKey(apiKey: string): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/Push/PublicKey`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+
+  if (!response.ok) {
+    throw new Error(`GetPushPublicKey failed with status ${response.status}`);
+  }
+
+  const result: { publicKey: string } = await response.json();
+  return result.publicKey;
+}
+
+export interface PushSubscribeRequest {
+  endpoint: string;
+  p256dhKey: string;
+  authKey: string;
+}
+
+export async function subscribePush(apiKey: string, subscription: PushSubscribeRequest): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/Push/Subscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    body: JSON.stringify(subscription),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Subscribe failed with status ${response.status}`);
+  }
+}
+
+export async function unsubscribePush(apiKey: string, endpoint: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/Push/Unsubscribe`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    body: JSON.stringify({ endpoint }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Unsubscribe failed with status ${response.status}`);
+  }
+}

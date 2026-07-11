@@ -76,6 +76,13 @@ export const en = {
   notifications: {
     title: "Notifications",
     none: "No notifications yet.",
+    enabled: "Push notifications are on for this device.",
+    disabled: "Get notified when your shipment status changes.",
+    enable: "Enable notifications",
+    disable: "Disable notifications",
+    error: "Something went wrong. Check your connection and try again.",
+    unsupported: "Push notifications aren't supported on this browser.",
+    iosInstallRequired: "On iPhone/iPad, add this app to your Home Screen first, then come back here to enable notifications.",
   },
   cod: {
     title: "COD collection",

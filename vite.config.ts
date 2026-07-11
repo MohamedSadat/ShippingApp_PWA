@@ -13,6 +13,9 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: "autoUpdate",
+      strategies: "injectManifest",
+      srcDir: "src",
+      filename: "sw.ts",
       includeAssets: ["favicon.ico", "apple-touch-icon.png"],
       manifest: {
         name: "Shipping App",
@@ -33,7 +36,7 @@ export default defineConfig({
           },
         ],
       },
-      workbox: {
+      injectManifest: {
         // App-shell precaching only; the agent scan queue lives in
         // IndexedDB (see src/lib/scanQueue.ts), not the SW cache.
         globPatterns: ["**/*.{js,css,html,svg,png,ico}"],
