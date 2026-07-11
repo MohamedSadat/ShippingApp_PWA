@@ -1,44 +1,146 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import { homePathForRole, type Role } from "../../auth/roles";
+import { homePathForRole, roleForUserType } from "../../auth/roles";
+import { login, loginByKey, type LoginResult } from "../../lib/unifiedApi";
+
+type Mode = "credentials" | "apiKey";
 
 /**
- * Placeholder sign-in. Real flow is an open decision (see CLAUDE.md):
- * likely phone-number OTP for Customer, existing staff/agent account
- * for Agent, both against UnifiedAPI. This just picks a role so the
- * gated routing/layouts can be exercised end to end.
+ * Auth flow for Customer vs Agent role (see CLAUDE.md open decisions)
+ * is still unsettled long-term (phone-number OTP for Customer vs
+ * staff account for Agent). For now both roles authenticate through
+ * the same UnifiedAPI /api/Login (or /api/Login/LogInByKey) used by
+ * other CashGear apps.
  */
 export function LoginPage() {
   const { user, signIn } = useAuth();
-  const [name, setName] = useState("");
+  const [mode, setMode] = useState<Mode>("credentials");
+  const [userName, setUserName] = useState("");
+  const [password, setPassword] = useState("");
+  const [company, setCompany] = useState("");
+  const [apiKeyInput, setApiKeyInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   if (user) {
     return <Navigate to={homePathForRole(user.role)} replace />;
   }
 
-  function handleSignIn(role: Role) {
-    signIn({ id: crypto.randomUUID(), name: name || "Guest", role });
+  function applyResult(result: LoginResult, fallbackUserName: string, fallbackCompany: string) {
+    if (!result.success) {
+      setError(result.message || "Login failed");
+      return;
+    }
+    signIn({
+      userName: result.userName ?? fallbackUserName,
+      name: result.name ?? fallbackUserName,
+      company: result.company ?? fallbackCompany,
+      apiKey: result.apiKey ?? "",
+      userType: result.userType,
+      partnerAccountId: result.partnerAccountId,
+      roles: result.roles,
+      role: roleForUserType(result.userType),
+    });
+  }
+
+  async function handleCredentialsSubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      const result = await login({ userName, password, company });
+      applyResult(result, userName, company);
+    } catch {
+      setError("Unable to reach the server. Check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  async function handleApiKeySubmit(e: FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+    try {
+      const result = await loginByKey(apiKeyInput);
+      applyResult(result, "", "");
+    } catch {
+      setError("Unable to reach the server. Check your connection and try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function switchMode(next: Mode) {
+    setMode(next);
+    setError(null);
   }
 
   return (
     <section className="page page--centered">
       <h1>Shipping App</h1>
       <p>Sign in to continue.</p>
-      <input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Your name"
-        className="login-input"
-      />
-      <div className="login-actions">
-        <button type="button" onClick={() => handleSignIn("customer")}>
-          Continue as Customer
+      <div className="login-mode-toggle">
+        <button
+          type="button"
+          className={mode === "apiKey" ? "login-mode-toggle__btn login-mode-toggle__btn--active" : "login-mode-toggle__btn"}
+          onClick={() => switchMode("apiKey")}
+        >
+          API Key
         </button>
-        <button type="button" onClick={() => handleSignIn("agent")}>
-          Continue as Agent
+        <button
+          type="button"
+          className={mode === "credentials" ? "login-mode-toggle__btn login-mode-toggle__btn--active" : "login-mode-toggle__btn"}
+          onClick={() => switchMode("credentials")}
+        >
+          Username &amp; Password
         </button>
       </div>
+
+      {mode === "credentials" ? (
+        <form className="login-actions" onSubmit={handleCredentialsSubmit}>
+          <input
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder="Username or email"
+            className="login-input"
+            autoComplete="username"
+          />
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            type="password"
+            className="login-input"
+            autoComplete="current-password"
+          />
+          <input
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+            placeholder="Company"
+            className="login-input"
+          />
+          {error && <p style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p>}
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
+      ) : (
+        <form className="login-actions" onSubmit={handleApiKeySubmit}>
+          <input
+            value={apiKeyInput}
+            onChange={(e) => setApiKeyInput(e.target.value)}
+            placeholder="API key"
+            className="login-input"
+            autoComplete="off"
+          />
+          {error && <p style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p>}
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Connecting..." : "Connect"}
+          </button>
+        </form>
+      )}
     </section>
   );
 }

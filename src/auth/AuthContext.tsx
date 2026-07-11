@@ -1,9 +1,15 @@
 import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
+import type { UserType } from "../lib/unifiedApi";
 import type { Role } from "./roles";
 
 export interface AuthUser {
-  id: string;
+  userName: string;
   name: string;
+  company: string;
+  apiKey: string;
+  userType: UserType;
+  partnerAccountId: string | null;
+  roles: string[];
   role: Role;
 }
 

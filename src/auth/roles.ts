@@ -1,4 +1,16 @@
+import { UserType } from "../lib/unifiedApi";
+
 export type Role = "customer" | "agent";
+
+/**
+ * BPCust (business-partner customer accounts) get the Customer view.
+ * Everything else (Employee/Exec/Supervisor internal staff, and
+ * BPAgent) gets the Agent view for now — no privilege differentiation
+ * among internal staff roles yet.
+ */
+export function roleForUserType(userType: UserType): Role {
+  return userType === UserType.BPCust ? "customer" : "agent";
+}
 
 export interface NavItem {
   path: string;
@@ -15,8 +27,11 @@ export interface NavItem {
  */
 export const NAV_ACCESS: Record<Role, NavItem[]> = {
   customer: [
-    { path: "/customer", label: "Track", end: true },
-    { path: "/customer/notifications", label: "Notifications" },
+    { path: "/customer", label: "Dashboard", end: true },
+    { path: "/customer/shipments", label: "My Shipment" },
+    { path: "/customer/shipments/new", label: "Add Shipment" },
+    { path: "/customer/account", label: "My Account" },
+    { path: "/customer/settings", label: "Settings" },
   ],
   agent: [
     { path: "/agent", label: "Manifest", end: true },
