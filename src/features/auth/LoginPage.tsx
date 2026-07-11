@@ -32,6 +32,13 @@ export function LoginPage() {
       setError(result.message || "Login failed");
       return;
     }
+    if (result.userType === undefined || result.userType === null) {
+      // Don't silently fall through to a default role — the server
+      // response is missing the field that determines Customer vs
+      // Agent, so we can't safely route this account anywhere.
+      setError("Login succeeded but account data is incomplete (missing user type). Contact support.");
+      return;
+    }
     signIn({
       userName: result.userName ?? fallbackUserName,
       name: result.name ?? fallbackUserName,
