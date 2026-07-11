@@ -16,6 +16,7 @@ export interface NavItem {
 export const NAV_ACCESS: Record<Role, NavItem[]> = {
   customer: [
     { path: "/customer", label: "Track", end: true },
+    { path: "/customer/orders", label: "My Orders" },
     { path: "/customer/notifications", label: "Notifications" },
   ],
   agent: [
