@@ -159,3 +159,81 @@ export async function getMyOrders(
     pageSize: data.PageSize,
   };
 }
+
+// AddressBook, nested on ShipOrder.ToAddressModel. Governorate/Zone are
+// left as plain strings/ids for now — no lookup endpoint wired yet.
+export interface AddressBookDraft {
+  Id?: number;
+  Company?: string;
+  Country?: string | null;
+  GoveId?: number | null;
+  ZoneId?: number | null;
+  Governrate?: string | null;
+  City?: string | null;
+  Building?: string | null;
+  Street?: string | null;
+  Postalcode?: string | null;
+  Floor?: string | null;
+  Phone?: string | null;
+  Phone2?: string | null;
+  ContactName?: string | null;
+}
+
+/**
+ * Raw ShipOrder wire object (PascalCase, as returned by InitShipment and
+ * expected by Save). Only the fields this app edits are typed explicitly;
+ * everything else InitShipment returns (Company, OrderType, StatusProfileId,
+ * SiteId, etc.) is carried through untouched via the index signature so Save
+ * always gets a complete, server-defaulted object back.
+ */
+export interface ShipOrderDraft {
+  [key: string]: unknown;
+  Notes?: string | null;
+  Description?: string | null;
+  CODAmount?: number;
+  ToAddressModel?: AddressBookDraft | null;
+}
+
+export async function initShipment(apiKey: string): Promise<ShipOrderDraft> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrder/InitShipment`, {
+    method: "POST",
+    headers: { [API_KEY_HEADER]: apiKey, "Content-Type": "application/json" },
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to initialize shipment (${response.status})`);
+  }
+
+  return (await response.json()) as ShipOrderDraft;
+}
+
+export interface SaveShipmentResult {
+  orderId: string;
+}
+
+export async function saveShipment(apiKey: string, order: ShipOrderDraft): Promise<SaveShipmentResult> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrder/Save`, {
+    method: "POST",
+    headers: { [API_KEY_HEADER]: apiKey, "Content-Type": "application/json" },
+    body: JSON.stringify(order),
+  });
+
+  const text = await response.text();
+  if (!response.ok) {
+    throw new Error(text || `Failed to save shipment (${response.status})`);
+  }
+
+  try {
+    const data: unknown = JSON.parse(text);
+    if (typeof data === "string" || typeof data === "number") {
+      return { orderId: String(data) };
+    }
+    if (data && typeof data === "object" && ("OrderId" in data || "orderId" in data)) {
+      const record = data as { OrderId?: string; orderId?: string };
+      return { orderId: String(record.OrderId ?? record.orderId ?? "") };
+    }
+    return { orderId: text };
+  } catch {
+    return { orderId: text };
+  }
+}

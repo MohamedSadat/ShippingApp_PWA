@@ -8,7 +8,7 @@ export function LoginPage() {
   const { user, signIn } = useAuth();
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [company, setCompany] = useState(".");
+  const [company, setCompany] = useState("Dot");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
