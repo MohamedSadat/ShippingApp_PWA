@@ -5,6 +5,9 @@ export interface AuthUser {
   id: string;
   name: string;
   role: Role;
+  apiKey: string;
+  company: string;
+  partnerAccountId: string;
 }
 
 interface AuthContextValue {
