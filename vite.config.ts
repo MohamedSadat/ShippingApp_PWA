@@ -2,13 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 
-// GitHub Pages project sites are served from /<repo-name>/. GITHUB_REPOSITORY
-// (set by Actions as "owner/repo") lets the base path stay correct without
-// hardcoding the repo name here. Local dev and other hosts fall back to "/".
-const repoName = process.env.GITHUB_REPOSITORY?.split("/")[1];
-
 export default defineConfig({
-  base: repoName ? `/${repoName}/` : "/",
+  base: "/",
   plugins: [
     react(),
     VitePWA({
