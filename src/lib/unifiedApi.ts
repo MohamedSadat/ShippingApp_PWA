@@ -127,6 +127,128 @@ export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrd
   return response.json();
 }
 
+// ShipOrderCmdController — add-shipment flow (GetGovs / GetZones / InitOrder / SaveOrder)
+
+export interface ShipGov {
+  goveId: number;
+  name: string;
+  nameEn: string;
+  code: string | null;
+  active: boolean;
+  sortOrder: number;
+}
+
+export interface ShipZone {
+  zoneId: number;
+  name: string;
+  code: string | null;
+  goveId: number;
+  active: boolean;
+  sortOrder: number;
+}
+
+export interface ShipAddressDraft {
+  id?: number;
+  goveId: number;
+  zoneId: number | null;
+  street: string | null;
+  city?: string | null;
+  building?: string | null;
+  phone: string | null;
+  phone2: string | null;
+  contactName: string | null;
+  country?: string | null;
+}
+
+// Fuller mirror of the backend ShipOrderDto (unlike the slim ShipOrderDto
+// above, used only for list/detail display) — InitOrder's response must be
+// echoed back into SaveOrder almost unchanged, so this keeps every field
+// SaveOrder depends on (notably orderType, which the server resolves
+// OrderTypeModel from).
+export interface ShipOrderDraft {
+  company: string;
+  orderId: string;
+  orderType: string;
+  statusProfileId: string;
+  orderDate: string;
+  dueDate: string | null;
+  custAccount: string;
+  fromAddress: number | null;
+  toAddress: number | null;
+  toAddressModel: ShipAddressDraft | null;
+  orderStatus: string;
+  carrierId: string | null;
+  trackingNumber: string | null;
+  externalId: string | null;
+  senderName: string | null;
+  senderPhone: string | null;
+  siteId: string;
+  notes: string | null;
+  description: string | null;
+  totalWeight: number;
+  totalVolume: number;
+  codAmount: number;
+  freightAmount: number;
+  orderCost: number;
+  contactName: string;
+  contactPhone: string;
+  contactPhone2: string | null;
+  allowOpen: boolean;
+  deleted: boolean;
+  rowVersion: string | null;
+}
+
+export async function getGovs(apiKey: string): Promise<ShipGov[]> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/GetGovs`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+
+  if (!response.ok) {
+    throw new Error(`GetGovs failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function getZones(apiKey: string, govId: number): Promise<ShipZone[]> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/GetZones/${govId}`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+
+  if (!response.ok) {
+    throw new Error(`GetZones failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function initOrder(apiKey: string): Promise<ShipOrderDraft> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/InitOrder`, {
+    headers: { "X-Api-Key": apiKey },
+  });
+
+  if (!response.ok) {
+    throw new Error(`InitOrder failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function saveOrder(apiKey: string, draft: ShipOrderDraft): Promise<{ orderId: string }> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/SaveOrder`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    body: JSON.stringify(draft),
+  });
+
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.message || `SaveOrder failed with status ${response.status}`);
+  }
+
+  return result;
+}
+
 // PartnerController — see memory/project_partner_api.md
 
 export async function getAccountBalance(apiKey: string, accountId: string): Promise<number> {
