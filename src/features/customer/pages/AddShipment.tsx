@@ -11,7 +11,17 @@ import {
   type ShipGov,
   type ShipZone,
   type ShipOrderDraft,
+  type ShipAddressDraft,
 } from "../../../lib/unifiedApi";
+
+const EMPTY_ADDRESS: ShipAddressDraft = {
+  goveId: 0,
+  zoneId: null,
+  street: null,
+  phone: null,
+  phone2: null,
+  contactName: null,
+};
 
 export function AddShipment() {
   const { user } = useAuth();
@@ -88,7 +98,7 @@ export function AddShipment() {
     const payload: ShipOrderDraft = {
       ...draft,
       toAddressModel: {
-        ...draft.toAddressModel,
+        ...(draft.toAddressModel ?? EMPTY_ADDRESS),
         goveId: Number(selectedGovId),
         zoneId: Number(selectedZoneId),
       },
@@ -147,9 +157,9 @@ export function AddShipment() {
       {loadError && <p style={{ color: "var(--color-danger)" }}>{loadError}</p>}
 
       {!loading && !loadError && draft && (
-        <form className="login-actions" onSubmit={handleSubmit}>
+        <form className="shipment-form" onSubmit={handleSubmit}>
           <select
-            className="login-input"
+            className="shipment-form__field"
             value={selectedGovId}
             onChange={(e) => setSelectedGovId(e.target.value)}
             required
@@ -165,7 +175,7 @@ export function AddShipment() {
           </select>
 
           <select
-            className="login-input"
+            className="shipment-form__field"
             value={selectedZoneId}
             onChange={(e) => setSelectedZoneId(e.target.value)}
             disabled={!selectedGovId}
@@ -182,7 +192,7 @@ export function AddShipment() {
           </select>
 
           <input
-            className="login-input"
+            className="shipment-form__field"
             value={street}
             onChange={(e) => setStreet(e.target.value)}
             placeholder={t("addShipment.streetPlaceholder")}
@@ -190,7 +200,7 @@ export function AddShipment() {
           />
 
           <input
-            className="login-input"
+            className="shipment-form__field"
             value={contactName}
             onChange={(e) => setContactName(e.target.value)}
             placeholder={t("addShipment.contactNamePlaceholder")}
@@ -198,7 +208,7 @@ export function AddShipment() {
           />
 
           <input
-            className="login-input"
+            className="shipment-form__field"
             value={contactPhone}
             onChange={(e) => setContactPhone(e.target.value)}
             placeholder={t("addShipment.phonePlaceholder")}
@@ -207,7 +217,7 @@ export function AddShipment() {
           />
 
           <input
-            className="login-input"
+            className="shipment-form__field"
             value={contactPhone2}
             onChange={(e) => setContactPhone2(e.target.value)}
             placeholder={t("addShipment.phone2Placeholder")}
@@ -215,7 +225,7 @@ export function AddShipment() {
           />
 
           <textarea
-            className="login-input"
+            className="shipment-form__field"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t("addShipment.descriptionPlaceholder")}
@@ -223,7 +233,7 @@ export function AddShipment() {
           />
 
           <input
-            className="login-input"
+            className="shipment-form__field"
             value={codAmount}
             onChange={(e) => setCodAmount(e.target.value)}
             placeholder={t("addShipment.codPlaceholder")}

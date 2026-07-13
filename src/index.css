@@ -178,6 +178,47 @@ input {
   color: var(--color-primary);
 }
 
+.shipment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  margin-top: 12px;
+}
+
+.shipment-form__field {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.shipment-form__field:disabled {
+  opacity: 0.6;
+}
+
+textarea.shipment-form__field {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.shipment-form button {
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.shipment-form button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 .order-list {
   list-style: none;
   margin: 12px 0 0;
