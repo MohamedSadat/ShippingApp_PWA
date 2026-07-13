@@ -70,6 +70,7 @@ export const en = {
     phone2Placeholder: "Recipient phone (alternate, optional)",
     descriptionPlaceholder: "Description",
     codPlaceholder: "COD amount",
+    estimatedFreight: "Estimated freight: {{amount}}",
     submit: "Save shipment",
     submitting: "Saving...",
   },

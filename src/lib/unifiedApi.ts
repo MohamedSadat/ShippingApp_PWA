@@ -249,6 +249,21 @@ export async function saveOrder(apiKey: string, draft: ShipOrderDraft): Promise<
   return result;
 }
 
+export async function updateZoneFreight(apiKey: string, draft: ShipOrderDraft): Promise<{ freightAmount: number }> {
+  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/UpdateZone`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    body: JSON.stringify(draft),
+  });
+
+  const result = await response.json();
+  if (!response.ok) {
+    throw new Error(result.message || `UpdateZone failed with status ${response.status}`);
+  }
+
+  return result;
+}
+
 // PartnerController — see memory/project_partner_api.md
 
 export async function getAccountBalance(apiKey: string, accountId: string): Promise<number> {

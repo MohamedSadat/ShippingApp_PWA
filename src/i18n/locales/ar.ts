@@ -72,6 +72,7 @@ export const ar: TranslationSchema = {
     phone2Placeholder: "هاتف المستلم (بديل، اختياري)",
     descriptionPlaceholder: "الوصف",
     codPlaceholder: "مبلغ الدفع عند الاستلام",
+    estimatedFreight: "تقدير رسوم الشحن: {{amount}}",
     submit: "حفظ الشحنة",
     submitting: "جارٍ الحفظ...",
   },

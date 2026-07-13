@@ -7,6 +7,7 @@ import {
   getZones,
   initOrder,
   saveOrder,
+  updateZoneFreight,
   type ShipGov,
   type ShipZone,
   type ShipOrderDraft,
@@ -34,6 +35,7 @@ export function AddShipment() {
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [freightAmount, setFreightAmount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -76,6 +78,32 @@ export function AddShipment() {
       cancelled = true;
     };
   }, [user, selectedGovId]);
+
+  useEffect(() => {
+    if (!user || !draft || !selectedGovId || !selectedZoneId) {
+      setFreightAmount(null);
+      return;
+    }
+    let cancelled = false;
+    const payload: ShipOrderDraft = {
+      ...draft,
+      toAddressModel: {
+        ...draft.toAddressModel,
+        goveId: Number(selectedGovId),
+        zoneId: Number(selectedZoneId),
+      },
+    };
+    updateZoneFreight(user.apiKey, payload)
+      .then((result) => {
+        if (!cancelled) setFreightAmount(result.freightAmount);
+      })
+      .catch(() => {
+        if (!cancelled) setFreightAmount(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [user, draft, selectedGovId, selectedZoneId]);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -204,6 +232,12 @@ export function AddShipment() {
             min="0"
             step="0.01"
           />
+
+          {freightAmount !== null && (
+            <p className="card__placeholder">
+              {t("addShipment.estimatedFreight", { amount: freightAmount.toFixed(2) })}
+            </p>
+          )}
 
           {submitError && <p style={{ color: "var(--color-danger)", margin: 0 }}>{submitError}</p>}
 
