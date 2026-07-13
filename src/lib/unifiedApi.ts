@@ -49,10 +49,8 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
 }
 
 /**
- * Re-authenticates with just a previously issued apiKey. UserType is
- * populated same as full login, so roleForUserType works here too —
- * but PartnerAccountId is not set by the server's LoginByKey handler
- * and always comes back null.
+ * Re-authenticates with just a previously issued apiKey. UserType and
+ * PartnerAccountId are both populated same as full login.
  */
 export async function loginByKey(apiKey: string): Promise<LoginResult> {
   const response = await fetch(`${API_BASE_URL}/api/Login/LogInByKey`, {
