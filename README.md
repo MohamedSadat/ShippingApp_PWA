@@ -38,7 +38,7 @@ src/
 
 `.github/workflows/deploy.yml` builds and deploys to GitHub Pages on push to `main`. Enable Pages for this repo under **Settings → Pages → Source: GitHub Actions** — no other setup needed.
 
-The app is served from the custom domain **cashgearapp.ddns.net** (configured under **Settings → Pages → Custom domain**), so `vite.config.ts` uses `base: "/"` and `public/CNAME` pins the domain so it survives each Pages deployment. `scripts/copy-spa-fallback.mjs` copies `index.html` to `404.html` after build so client-side routes survive a hard refresh on Pages (which has no server-side rewrite rules).
+The app is served from the custom domain **shipapp.cashgearerp.com** (configured under **Settings → Pages → Custom domain**), so `vite.config.ts` uses `base: "/"` and `public/CNAME` pins the domain so it survives each Pages deployment. `scripts/copy-spa-fallback.mjs` copies `index.html` to `404.html` after build so client-side routes survive a hard refresh on Pages (which has no server-side rewrite rules).
 
 ## Open decisions (from CLAUDE.md — not yet settled)
 
