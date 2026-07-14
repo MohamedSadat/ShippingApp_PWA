@@ -119,6 +119,15 @@ export const en = {
     submit: "Record delivery",
     queued: "Delivery queued for {{id}}",
   },
+  barcodeScanner: {
+    scanButton: "Scan with camera",
+    manualEntry: "Enter manually",
+    cancel: "Cancel",
+    loading: "Starting camera…",
+    permissionDenied: "Camera permission denied. Please allow camera access or enter the ID manually.",
+    noCamera: "No camera found on this device. Enter the ID manually.",
+    genericError: "Couldn't start the camera. Enter the ID manually.",
+  },
 };
 
 export type TranslationSchema = typeof en;

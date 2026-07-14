@@ -27,7 +27,7 @@ This is a browser-installable PWA, not a native app. It replaces what would othe
 These were deliberately decided against native (MAUI) after weighing trade-offs — don't relitigate without a real reason:
 
 1. **No continuous/background location tracking** (not required near-term). Location is only captured at discrete action moments (pickup scan, delivery scan) via a one-time `navigator.geolocation.getCurrentPosition()` call at time of scan. This works identically on iOS/Android PWA — no native advantage here, so no reason to reconsider unless live agent tracking becomes a real product requirement later.
-2. **Barcode/waybill scanning** via camera `getUserMedia` + a JS decode library (e.g. `zxing-js`, `html5-qrcode`). Android Chrome can optionally use the native `BarcodeDetector` API for lower CPU cost; iOS Safari falls back to JS decoding — works fine, just slightly heavier.
+2. **Barcode/waybill scanning** via camera `getUserMedia` + `@zxing/browser` for QR decode (waybill labels are QR codes). Android Chrome uses the native `BarcodeDetector` API when available for lower CPU cost; iOS Safari and other browsers fall back to `@zxing/browser` — works fine, just slightly heavier. Implemented as a reusable `BarcodeScanner` component (`src/components/BarcodeScanner.tsx`) used by both Pickup and Delivery scan pages; manual paste/typing remains the default fallback input.
 3. **Push notifications** for customer shipment status updates: supported on Android in any context; on iOS, push only works if the customer has installed the PWA to their home screen first (iOS 16.4+ requirement) — design the install prompt into the flow accordingly.
 
 ## Offline Handling (Agent-critical)
@@ -42,7 +42,6 @@ Agents will be scanning in low-signal areas. Design for this from day one, not a
 
 - Static hosting target: GitHub Pages vs Azure Static Web Apps
 - POD (proof of delivery) photo capture — required per delivery, or optional?
-- Specific barcode decode library choice
 - Auth flow for Customer role (likely phone-number-based, consistent with existing CashGear customer identity pattern) vs Agent role (likely tied to existing staff/agent accounts)
 
 ## Non-Goals (for now)
