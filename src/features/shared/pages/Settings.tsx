@@ -6,6 +6,7 @@ import { LanguageSwitcher } from "../../../components/LanguageSwitcher";
 export function Settings() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const settingsPath = `/${user?.role ?? "customer"}/settings`;
 
   return (
     <section className="page">
@@ -17,11 +18,9 @@ export function Settings() {
       <div className="card">
         <p className="card__placeholder">{t("settings.noSettings")}</p>
       </div>
-      {user?.role === "customer" && (
-        <div className="card">
-          <Link to="/customer/settings/notifications">{t("settings.notifications")}</Link>
-        </div>
-      )}
+      <div className="card">
+        <Link to={`${settingsPath}/notifications`}>{t("settings.notifications")}</Link>
+      </div>
     </section>
   );
 }

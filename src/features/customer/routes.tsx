@@ -7,7 +7,7 @@ import { OrderPage } from "./pages/OrderPage";
 import { AddShipment } from "./pages/AddShipment";
 import { MyAccount } from "./pages/MyAccount";
 import { Settings } from "../shared/pages/Settings";
-import { Notifications } from "./pages/Notifications";
+import { Notifications } from "../shared/pages/Notifications";
 
 export function customerRoutes() {
   return (
