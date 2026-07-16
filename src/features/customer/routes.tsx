@@ -6,7 +6,7 @@ import { MyShipment } from "./pages/MyShipment";
 import { OrderPage } from "./pages/OrderPage";
 import { AddShipment } from "./pages/AddShipment";
 import { MyAccount } from "./pages/MyAccount";
-import { Settings } from "./pages/Settings";
+import { Settings } from "../shared/pages/Settings";
 import { Notifications } from "./pages/Notifications";
 
 export function customerRoutes() {
