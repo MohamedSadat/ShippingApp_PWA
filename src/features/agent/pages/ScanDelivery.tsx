@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { recordScan } from "../../../lib/scanQueue";
 import { useScanQueueSync } from "../../../lib/useScanQueueSync";
-import { getAllowedActions, updateWorkflow, type WorkflowAction } from "../../../lib/unifiedApi";
+import { getAllowedActions, getOrder, updateWorkflow, type WorkflowAction } from "../../../lib/unifiedApi";
 
 const BarcodeScanner = lazy(() =>
   import("../../../components/BarcodeScanner").then((m) => ({ default: m.BarcodeScanner })),
@@ -14,6 +14,7 @@ export function ScanDelivery() {
   const { user } = useAuth();
   const [waybillId, setWaybillId] = useState("");
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [contactName, setContactName] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [actions, setActions] = useState<WorkflowAction[] | null>(null);
@@ -25,6 +26,17 @@ export function ScanDelivery() {
   useScanQueueSync();
 
   // TODO: POD photo capture — required-vs-optional is an open decision (see CLAUDE.md).
+  async function loadContact(id: string) {
+    if (!user) return;
+    setContactName(null);
+    try {
+      const order = await getOrder(user.apiKey, id);
+      setContactName(order.contactName || null);
+    } catch {
+      // Non-critical: leave the contact name empty if the lookup fails.
+    }
+  }
+
   async function loadActions(id: string) {
     if (!user) return;
     setLoadingActions(true);
@@ -50,7 +62,7 @@ export function ScanDelivery() {
     setOrderId(waybillId);
     setActionResult(null);
     setActionError(null);
-    await loadActions(waybillId);
+    await Promise.all([loadContact(waybillId), loadActions(waybillId)]);
   }
 
   async function runAction(action: WorkflowAction) {
@@ -72,6 +84,7 @@ export function ScanDelivery() {
   function reset() {
     setWaybillId("");
     setOrderId(null);
+    setContactName(null);
     setStatus(null);
     setActions(null);
     setActionsError(null);
@@ -98,9 +111,14 @@ export function ScanDelivery() {
             <label htmlFor="waybillId">{t("scanDelivery.waybillLabel")}</label>
             <input
               id="waybillId"
+              name="waybillId"
               value={waybillId}
               onChange={(e) => setWaybillId(e.target.value)}
               placeholder={t("scanDelivery.waybillPlaceholder")}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
             />
             <button type="button" className="scan-form__scan-btn" onClick={() => setScanning(true)}>
               {t("barcodeScanner.scanButton")}
@@ -113,6 +131,11 @@ export function ScanDelivery() {
             <div className="scan-actions">
               <h2 className="scan-actions__title">{t("scanDelivery.actionsTitle")}</h2>
               <span className="scan-actions__order">{orderId}</span>
+              {contactName && (
+                <span className="scan-actions__contact">
+                  {t("scanDelivery.contact")}: {contactName}
+                </span>
+              )}
 
               {loadingActions && <p className="card__placeholder">{t("scanDelivery.actionsLoading")}</p>}
               {actionsError && <p style={{ color: "var(--color-danger)" }}>{actionsError}</p>}
@@ -127,6 +150,7 @@ export function ScanDelivery() {
                   <button
                     key={action.targetStatusCode}
                     type="button"
+                    className={action.cssClass ?? undefined}
                     onClick={() => runAction(action)}
                     disabled={runningActionId !== null}
                   >

@@ -41,9 +41,14 @@ export function ScanPickup() {
             <label htmlFor="waybillId">{t("scanPickup.waybillLabel")}</label>
             <input
               id="waybillId"
+              name="waybillId"
               value={waybillId}
               onChange={(e) => setWaybillId(e.target.value)}
               placeholder={t("scanPickup.waybillPlaceholder")}
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
             />
             <button type="button" className="scan-form__scan-btn" onClick={() => setScanning(true)}>
               {t("barcodeScanner.scanButton")}

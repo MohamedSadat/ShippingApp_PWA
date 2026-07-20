@@ -118,6 +118,7 @@ export const en = {
     waybillPlaceholder: "Scan or enter waybill ID",
     submit: "Record delivery",
     queued: "Delivery queued for {{id}}",
+    contact: "Contact",
     actionsTitle: "Workflow actions",
     actionsLoading: "Loading actions…",
     actionsError: "Couldn't load actions for this order.",

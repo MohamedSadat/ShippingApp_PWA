@@ -205,6 +205,12 @@ input {
   color: var(--color-text-muted);
 }
 
+.scan-actions__contact {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
 .scan-actions button {
   padding: 12px;
   border: none;
@@ -216,6 +222,24 @@ input {
 
 .scan-actions button:disabled {
   opacity: 0.6;
+}
+
+/* Action button colors driven by the backend AllowedActionDto.cssClass
+   (Bootstrap-style badge variants, e.g. "badge bg-success"). */
+.scan-actions button.bg-success {
+  background: #198754;
+}
+
+.scan-actions button.bg-secondary {
+  background: #6c757d;
+}
+
+.scan-actions button.bg-danger {
+  background: #dc3545;
+}
+
+.scan-actions button.bg-info {
+  background: #17a2b8;
 }
 
 .scan-actions__reset {

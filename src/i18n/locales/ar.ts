@@ -120,6 +120,7 @@ export const ar: TranslationSchema = {
     waybillPlaceholder: "امسح أو أدخل رقم البوليصة",
     submit: "تسجيل التسليم",
     queued: "تم إدراج التسليم لـ {{id}}",
+    contact: "جهة الاتصال",
     actionsTitle: "إجراءات سير العمل",
     actionsLoading: "جارٍ تحميل الإجراءات…",
     actionsError: "تعذّر تحميل الإجراءات لهذا الطلب.",
