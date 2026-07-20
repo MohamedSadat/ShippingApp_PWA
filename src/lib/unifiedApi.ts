@@ -264,6 +264,63 @@ export async function updateZoneFreight(apiKey: string, draft: ShipOrderDraft): 
   return result;
 }
 
+// Workflow actions (agent delivery flow) — ShipOrderCmd controller.
+// Mirrors the backend AllowedActionDto returned by GetAllowedActions
+// (CG.Infrastructure/CGModels/ThrdPL/StatusProfile.cs).
+export interface WorkflowAction {
+  targetStatusCode: string;
+  description: string;
+  buttonLabel: string; // e.g. "Confirm Order", "Cancel"
+  cssClass: string | null; // e.g. "btn-primary", "btn-danger"
+  icon: string | null;
+  lookupId: string | null;
+  requiresReason: boolean;
+  requiresAccount: boolean;
+  requiresLocation: boolean;
+  requiresConfirmation: boolean;
+  requiresAmount: boolean;
+  isFinal: boolean;
+}
+
+export async function getAllowedActions(apiKey: string, orderId: string): Promise<WorkflowAction[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/ship/ShipOrderCmd/GetAllowedActions/${encodeURIComponent(orderId)}`,
+    { headers: { "X-Api-Key": apiKey } },
+  );
+
+  if (!response.ok) {
+    throw new Error(`GetAllowedActions failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function updateWorkflow(
+  apiKey: string,
+  actionId: string,
+  orderId: string,
+): Promise<{ message?: string }> {
+  // NOTE: the backend updateworkflow endpoint is not built yet. actionId is the
+  // action's targetStatusCode; the body sends orderId. Align both with the
+  // controller signature once it lands (some actions also flag requiresReason /
+  // requiresAmount / requiresLocation / requiresAccount for extra payload).
+  const response = await fetch(
+    `${API_BASE_URL}/api/ship/ShipOrderCmd/updateworkflow/${encodeURIComponent(actionId)}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+      body: JSON.stringify({ orderId }),
+    },
+  );
+
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    throw new Error(result.message || `updateWorkflow failed with status ${response.status}`);
+  }
+
+  return result;
+}
+
 // PartnerController — see memory/project_partner_api.md
 
 export async function getAccountBalance(apiKey: string, accountId: string): Promise<number> {
