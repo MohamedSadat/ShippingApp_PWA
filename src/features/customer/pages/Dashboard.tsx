@@ -8,7 +8,7 @@ export function Dashboard() {
   return (
     <section className="page">
       <h1>{t("dashboard.title")}</h1>
-      <p>{t("dashboard.welcome", { name: user?.name })}</p>
+      <p>{t("dashboard.welcome", { name: user?.userName })}</p>
       {/* TODO: shipment summary/status widgets, backed by UnifiedAPI */}
       <div className="card">
         <p className="card__placeholder">{t("dashboard.noShipments")}</p>

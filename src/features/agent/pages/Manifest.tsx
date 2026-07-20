@@ -8,7 +8,7 @@ export function Manifest() {
   return (
     <section className="page">
       <h1>{t("manifest.title")}</h1>
-      <p>{t("manifest.agent", { name: user?.name })}</p>
+      <p>{t("manifest.agent", { name: user?.userName })}</p>
       {/* TODO: assigned pickups/deliveries list, backed by UnifiedAPI */}
       <div className="card">
         <p className="card__placeholder">{t("manifest.noStops")}</p>
