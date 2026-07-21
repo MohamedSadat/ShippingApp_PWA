@@ -1,9 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Navigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../auth/AuthContext";
 import { homePathForRole, roleForUserType } from "../../auth/roles";
-import { login, loginByKey, type LoginResult } from "../../lib/unifiedApi";
+import { login, loginByKey, fetchActiveCompanies, type LoginResult, type CompanyOption } from "../../lib/unifiedApi";
 import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 
 type Mode = "credentials" | "apiKey";
@@ -22,9 +22,29 @@ export function LoginPage() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [company, setCompany] = useState("Dot");
+  const fallbackCompanies: CompanyOption[] = [
+    { value: "Dot", label: t("login.companyDot") },
+    { value: "Kit", label: t("login.companyKit") },
+  ];
+  const [companies, setCompanies] = useState<CompanyOption[]>(fallbackCompanies);
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  // Load the live company list once on mount. The endpoint is anonymous, so it
+  // works pre-login. On failure we keep the hardcoded fallback already in state,
+  // so login stays usable with no user-facing error.
+  useEffect(() => {
+    let cancelled = false;
+    fetchActiveCompanies()
+      .then((list) => {
+        if (cancelled || list.length === 0) return;
+        setCompanies(list);
+        setCompany((current) => (list.some((c) => c.value === current) ? current : list[0].value));
+      })
+      .catch(() => { /* keep the hardcoded fallback — login stays usable */ });
+    return () => { cancelled = true; };
+  }, []);
 
   if (user) {
     return <Navigate to={homePathForRole(user.role)} replace />;
@@ -128,8 +148,9 @@ export function LoginPage() {
             autoComplete="current-password"
           />
           <select value={company} onChange={(e) => setCompany(e.target.value)} className="login-input">
-            <option value="Dot">{t("login.companyDot")}</option>
-            <option value="Kit">{t("login.companyKit")}</option>
+            {companies.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
           </select>
           {error && <p style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p>}
           <button type="submit" disabled={submitting}>

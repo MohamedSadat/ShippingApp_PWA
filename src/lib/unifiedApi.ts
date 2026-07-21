@@ -1,5 +1,8 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// Fixed organization whose active companies populate the login dropdown.
+const ORG_ID = "CashGear";
+
 export const UserType = {
   Employee: 0,
   Exec: 1,
@@ -60,6 +63,33 @@ export async function loginByKey(apiKey: string): Promise<LoginResult> {
   });
 
   return response.json();
+}
+
+export interface CompanyOption {
+  value: string;
+  label: string;
+}
+
+// Active companies for an org — populates the login company dropdown. The
+// CompanyInfoController endpoint is [AllowAnonymous], so like login/loginByKey
+// it runs before auth and sends no X-Api-Key header. value=CoID (what /api/Login
+// expects as `company`), label=CoName. Throws on non-OK so the caller can fall back.
+export async function fetchActiveCompanies(orgId = ORG_ID): Promise<CompanyOption[]> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/CompanyInfo/GetActiveCompaniesByOrgId/${encodeURIComponent(orgId)}`,
+    { headers: { Accept: "application/json" } },
+  );
+  if (!response.ok) {
+    throw new Error(`GetActiveCompaniesByOrgId failed with status ${response.status}`);
+  }
+  const list = (await response.json()) as Array<Record<string, unknown>>;
+  return list
+    .map((c) => {
+      const value = String(c.coID ?? c.coId ?? c.CoID ?? "");
+      const label = String(c.coName ?? c.CoName ?? value);
+      return { value, label };
+    })
+    .filter((c) => c.value);
 }
 
 // ShipOrderController — see memory/project_shiporder_api.md, more actions
