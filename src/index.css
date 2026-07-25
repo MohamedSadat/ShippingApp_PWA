@@ -292,6 +292,49 @@ textarea.shipment-form__field {
   cursor: default;
 }
 
+.dashboard-stats {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.dashboard-stats__tile {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.dashboard-stats__value {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.dashboard-stats__label {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.dashboard-stats__section-title {
+  margin: 20px 0 0;
+  font-size: 1rem;
+}
+
+.manifest-item__phone {
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  padding: 4px 0;
+}
+
+.manifest-item__street {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
 .order-list {
   list-style: none;
   margin: 12px 0 0;

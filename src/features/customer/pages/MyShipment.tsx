@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
-import { getMyOrders, type ShipOrderDto } from "../../../lib/unifiedApi";
+import { getPartnerCompletedOrders, type ShipOrderDto } from "../../../lib/unifiedApi";
 import { formatDate } from "../../../lib/formatDate";
 
 const PAGE_SIZE = 30;
@@ -22,7 +22,7 @@ export function MyShipment() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getMyOrders(user.apiKey, pageNumber, PAGE_SIZE)
+    getPartnerCompletedOrders(user.apiKey, pageNumber, PAGE_SIZE)
       .then((result) => {
         if (cancelled) return;
         setOrders(result.data);

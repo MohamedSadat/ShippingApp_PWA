@@ -37,12 +37,16 @@ export const en = {
   dashboard: {
     title: "Dashboard",
     welcome: "Welcome, {{name}}.",
-    noShipments: "No shipments to show yet.",
+    noShipments: "No pending shipments.",
+    loading: "Loading pending shipments...",
+    pending: "Pending shipments",
+    pendingCount: "Pending",
+    totalCod: "Total COD",
   },
   myShipment: {
     title: "My Shipment",
     loading: "Loading shipments...",
-    noShipments: "No shipments to show yet.",
+    noShipments: "No completed shipments yet.",
     previous: "Previous",
     next: "Next",
     page: "Page {{page}}",
@@ -104,6 +108,8 @@ export const en = {
     title: "Today's manifest",
     agent: "Agent: {{name}}.",
     noStops: "No assigned stops yet.",
+    loading: "Loading stops...",
+    cod: "COD",
   },
   scanPickup: {
     title: "Pickup scan",

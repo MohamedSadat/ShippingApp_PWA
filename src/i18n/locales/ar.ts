@@ -39,12 +39,16 @@ export const ar: TranslationSchema = {
   dashboard: {
     title: "الرئيسية",
     welcome: "مرحبًا، {{name}}.",
-    noShipments: "لا توجد شحنات لعرضها بعد.",
+    noShipments: "لا توجد شحنات قيد التنفيذ.",
+    loading: "جارٍ تحميل الشحنات قيد التنفيذ...",
+    pending: "الشحنات قيد التنفيذ",
+    pendingCount: "قيد التنفيذ",
+    totalCod: "إجمالي الدفع عند الاستلام",
   },
   myShipment: {
     title: "شحناتي",
     loading: "جارٍ تحميل الشحنات...",
-    noShipments: "لا توجد شحنات لعرضها بعد.",
+    noShipments: "لا توجد شحنات مكتملة بعد.",
     previous: "السابق",
     next: "التالي",
     page: "صفحة {{page}}",
@@ -106,6 +110,8 @@ export const ar: TranslationSchema = {
     title: "قائمة اليوم",
     agent: "المندوب: {{name}}.",
     noStops: "لا توجد محطات موكلة بعد.",
+    loading: "جارٍ تحميل المحطات...",
+    cod: "الدفع عند الاستلام",
   },
   scanPickup: {
     title: "مسح الاستلام",

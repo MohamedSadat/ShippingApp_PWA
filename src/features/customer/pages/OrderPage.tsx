@@ -36,9 +36,12 @@ export function OrderPage() {
 
   const address = order?.toAddressModel;
   const addressLines = address
-    ? [address.address1, address.address2, [address.city, address.state, address.zipCode].filter(Boolean).join(", "), address.country].filter(
-        (line): line is string => !!line,
-      )
+    ? [
+        address.street,
+        [address.building, address.floor].filter(Boolean).join(", "),
+        [address.city, address.governrate].filter(Boolean).join(", "),
+        address.country,
+      ].filter((line): line is string => !!line)
     : [];
 
   return (

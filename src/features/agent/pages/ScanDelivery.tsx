@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, type FormEvent } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { recordScan } from "../../../lib/scanQueue";
@@ -12,7 +13,10 @@ const BarcodeScanner = lazy(() =>
 export function ScanDelivery() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const [waybillId, setWaybillId] = useState("");
+  const [searchParams] = useSearchParams();
+  // Arriving from the manifest prefills the waybill, but never auto-submits — recording
+  // the delivery stays an explicit agent action.
+  const [waybillId, setWaybillId] = useState(searchParams.get("waybill") ?? "");
   const [orderId, setOrderId] = useState<string | null>(null);
   const [contactName, setContactName] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);

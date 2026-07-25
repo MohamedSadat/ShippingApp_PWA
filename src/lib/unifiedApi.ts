@@ -95,13 +95,20 @@ export async function fetchActiveCompanies(orgId = ORG_ID): Promise<CompanyOptio
 // ShipOrderController — see memory/project_shiporder_api.md, more actions
 // will be added under this same base route over time.
 
+// Mirrors the backend AddressBook entity. Note `governrate` — the misspelling is
+// the actual property name on the server, not a typo here.
 export interface AddressBookModel {
-  address1?: string | null;
-  address2?: string | null;
+  street?: string | null;
+  building?: string | null;
+  floor?: string | null;
   city?: string | null;
-  state?: string | null;
-  zipCode?: string | null;
+  governrate?: string | null;
   country?: string | null;
+  postalcode?: string | null;
+  phone?: string | null;
+  phone2?: string | null;
+  contactName?: string | null;
+  fullAddress?: string | null;
 }
 
 export interface ShipOrderDto {
@@ -111,6 +118,7 @@ export interface ShipOrderDto {
   orderStatus: string;
   custAccount: string;
   contactName: string;
+  contactPhone: string | null;
   description: string | null;
   codAmount: number;
   freightAmount: number;
@@ -143,6 +151,48 @@ export async function getMyOrders(
   }
 
   return response.json();
+}
+
+// GetPartnerPendingOrder / GetPartnerCompletedOrder resolve the partner from the API
+// key's own claims — customers get their own orders, agents get the ones they carry.
+async function getPartnerOrders(
+  action: "GetPartnerPendingOrder" | "GetPartnerCompletedOrder",
+  apiKey: string,
+  pageNumber: number,
+  pageSize: number,
+): Promise<PagedOrderResult<ShipOrderDto>> {
+  const response = await fetch(
+    `${API_BASE_URL}/api/ship/ShipOrder/${action}?pageNumber=${pageNumber}&pageSize=${pageSize}`,
+    { headers: { "X-Api-Key": apiKey } },
+  );
+
+  if (!response.ok) {
+    throw new Error(`${action} failed with status ${response.status}`);
+  }
+
+  // A user type the endpoint doesn't handle answers 200 with an empty body.
+  const body = await response.text();
+  if (!body) {
+    return { data: [], totalCount: 0, pageNumber, pageSize };
+  }
+
+  return JSON.parse(body);
+}
+
+export function getPartnerPendingOrders(
+  apiKey: string,
+  pageNumber = 1,
+  pageSize = 30,
+): Promise<PagedOrderResult<ShipOrderDto>> {
+  return getPartnerOrders("GetPartnerPendingOrder", apiKey, pageNumber, pageSize);
+}
+
+export function getPartnerCompletedOrders(
+  apiKey: string,
+  pageNumber = 1,
+  pageSize = 30,
+): Promise<PagedOrderResult<ShipOrderDto>> {
+  return getPartnerOrders("GetPartnerCompletedOrder", apiKey, pageNumber, pageSize);
 }
 
 export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrderDto> {
