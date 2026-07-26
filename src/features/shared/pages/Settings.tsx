@@ -5,7 +5,7 @@ import { LanguageSwitcher } from "../../../components/LanguageSwitcher";
 
 export function Settings() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const settingsPath = `/${user?.role ?? "customer"}/settings`;
 
   return (
@@ -20,6 +20,11 @@ export function Settings() {
       </div>
       <div className="card">
         <Link to={`${settingsPath}/notifications`}>{t("settings.notifications")}</Link>
+      </div>
+      <div className="card">
+        <button type="button" className="settings-signout" onClick={signOut}>
+          {t("settings.signOut")}
+        </button>
       </div>
     </section>
   );

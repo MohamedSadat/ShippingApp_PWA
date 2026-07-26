@@ -101,6 +101,15 @@ input {
   margin: 0;
 }
 
+.settings-signout {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--color-danger);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-danger);
+}
+
 .login-input {
   width: 100%;
   max-width: 280px;

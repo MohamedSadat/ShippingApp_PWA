@@ -17,7 +17,6 @@ export const ar: TranslationSchema = {
     pickupScan: "مسح الاستلام",
     deliveryScan: "مسح التسليم",
     cod: "الدفع عند الاستلام",
-    signOut: "تسجيل الخروج",
   },
   login: {
     title: "تطبيق الشحن",
@@ -90,6 +89,7 @@ export const ar: TranslationSchema = {
     noSettings: "لا توجد إعدادات بعد.",
     notifications: "الإشعارات",
     language: "اللغة",
+    signOut: "تسجيل الخروج",
   },
   notifications: {
     title: "الإشعارات",

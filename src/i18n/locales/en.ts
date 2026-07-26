@@ -15,7 +15,6 @@ export const en = {
     pickupScan: "Pickup Scan",
     deliveryScan: "Delivery Scan",
     cod: "COD",
-    signOut: "Sign out",
   },
   login: {
     title: "Shipping App",
@@ -88,6 +87,7 @@ export const en = {
     noSettings: "No settings yet.",
     notifications: "Notifications",
     language: "Language",
+    signOut: "Sign out",
   },
   notifications: {
     title: "Notifications",

@@ -28,7 +28,3 @@
   color: var(--color-primary);
   font-weight: 600;
 }
-
-.nav-bar__signout {
-  color: var(--color-danger);
-}
