@@ -36,6 +36,28 @@ async function authFetch(apiKey: string, url: string, init: RequestInit = {}): P
   return response;
 }
 
+// UnifiedAPI rejects a request in one of two shapes: a controller's own
+// { message }, or — when [ApiController] model validation fails (e.g. a field
+// over its [MaxLength]) before the action even runs — a ProblemDetails whose
+// `errors` maps each field to its messages. Falls back when the body is neither.
+async function readErrorMessage(response: Response, fallback: string): Promise<string> {
+  const body = await response.text().catch(() => "");
+  try {
+    const data = JSON.parse(body);
+    if (typeof data?.message === "string" && data.message) return data.message;
+    if (data?.errors && typeof data.errors === "object") {
+      const messages = Object.values(data.errors)
+        .flat()
+        .filter((m): m is string => typeof m === "string" && m.length > 0);
+      if (messages.length) return messages.join(" ");
+    }
+    if (typeof data?.title === "string" && data.title) return data.title;
+  } catch {
+    // Not JSON (empty body, proxy error page) — use the fallback.
+  }
+  return fallback;
+}
+
 export interface LoginRequest {
   userName: string;
   password: string;
@@ -339,12 +361,11 @@ export async function saveOrder(apiKey: string, draft: ShipOrderDraft): Promise<
     body: JSON.stringify(draft),
   });
 
-  const result = await response.json();
   if (!response.ok) {
-    throw new Error(result.message || `SaveOrder failed with status ${response.status}`);
+    throw new Error(await readErrorMessage(response, `SaveOrder failed with status ${response.status}`));
   }
 
-  return result;
+  return response.json();
 }
 
 export async function updateZoneFreight(apiKey: string, draft: ShipOrderDraft): Promise<{ freightAmount: number }> {
@@ -354,12 +375,11 @@ export async function updateZoneFreight(apiKey: string, draft: ShipOrderDraft): 
     body: JSON.stringify(draft),
   });
 
-  const result = await response.json();
   if (!response.ok) {
-    throw new Error(result.message || `UpdateZone failed with status ${response.status}`);
+    throw new Error(await readErrorMessage(response, `UpdateZone failed with status ${response.status}`));
   }
 
-  return result;
+  return response.json();
 }
 
 // Workflow actions (agent delivery flow) — ShipOrderCmd controller.

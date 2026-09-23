@@ -196,6 +196,7 @@ export function AddShipment() {
             value={street}
             onChange={(e) => setStreet(e.target.value)}
             placeholder={t("addShipment.streetPlaceholder")}
+            maxLength={250}
             required
           />
 
@@ -204,6 +205,7 @@ export function AddShipment() {
             value={contactName}
             onChange={(e) => setContactName(e.target.value)}
             placeholder={t("addShipment.contactNamePlaceholder")}
+            maxLength={100}
             required
           />
 
@@ -213,6 +215,7 @@ export function AddShipment() {
             onChange={(e) => setContactPhone(e.target.value)}
             placeholder={t("addShipment.phonePlaceholder")}
             type="tel"
+            maxLength={50}
             required
           />
 
@@ -222,6 +225,7 @@ export function AddShipment() {
             onChange={(e) => setContactPhone2(e.target.value)}
             placeholder={t("addShipment.phone2Placeholder")}
             type="tel"
+            maxLength={50}
           />
 
           <textarea
@@ -230,6 +234,7 @@ export function AddShipment() {
             onChange={(e) => setDescription(e.target.value)}
             placeholder={t("addShipment.descriptionPlaceholder")}
             rows={2}
+            maxLength={200}
           />
 
           <input
