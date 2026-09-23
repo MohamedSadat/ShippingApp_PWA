@@ -51,6 +51,8 @@ export const en = {
     title: "My Shipment",
     loading: "Loading shipments...",
     noShipments: "No completed shipments yet.",
+  },
+  shipmentGrid: {
     previous: "Previous",
     next: "Next",
     page: "Page {{page}}",
@@ -92,6 +94,8 @@ export const en = {
     estimatedFreight: "Estimated freight: {{amount}}",
     submit: "Save shipment",
     submitting: "Saving...",
+    saved: "Shipment saved.",
+    savedWithId: "Shipment {{orderId}} saved.",
   },
   myAccount: {
     title: "My Account",

@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { CompanyLogo } from "../../../components/CompanyLogo";
 import { getPartnerPendingOrders, type ShipOrderDto } from "../../../lib/unifiedApi";
-import { formatDate } from "../../../lib/formatDate";
+import { PrintableShipmentGrid } from "../components/PrintableShipmentGrid";
+
+const PAGE_SIZE = 30;
 
 export function Dashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const { t } = useTranslation();
   const [orders, setOrders] = useState<ShipOrderDto[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [pageNumber, setPageNumber] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +21,7 @@ export function Dashboard() {
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getPartnerPendingOrders(user.apiKey)
+    getPartnerPendingOrders(user.apiKey, pageNumber, PAGE_SIZE)
       .then((result) => {
         if (cancelled) return;
         setOrders(result.data);
@@ -35,7 +36,7 @@ export function Dashboard() {
     return () => {
       cancelled = true;
     };
-  }, [user, t]);
+  }, [user, pageNumber, t]);
 
   const totalCod = orders.reduce((sum, order) => sum + order.codAmount, 0);
 
@@ -68,35 +69,18 @@ export function Dashboard() {
       )}
 
       {!loading && !error && orders.length > 0 && (
-        <>
-          <h2 className="dashboard-stats__section-title">{t("dashboard.pending")}</h2>
-          <ul className="order-list">
-            {orders.map((order) => (
-              <li
-                key={order.orderId}
-                className="order-list__item order-list__item--clickable"
-                onClick={() => navigate(`/customer/shipments/${order.orderId}`)}
-              >
-                <div className="order-list__row">
-                  <span className="order-list__id">{order.orderId}</span>
-                  <span className="order-list__status">{order.orderStatus}</span>
-                </div>
-                <div className="order-list__row">
-                  <span className="order-list__date">{formatDate(order.orderDate)}</span>
-                  <span className="order-list__cod">{order.codAmount.toFixed(2)}</span>
-                </div>
-                {order.description && (
-                  <div className="order-list__row">
-                    <span className="order-list__description">{order.description}</span>
-                  </div>
-                )}
-                <div className="order-list__row">
-                  <span className="order-list__contact">{order.contactName}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </>
+        <h2 className="dashboard-stats__section-title">{t("dashboard.pending")}</h2>
+      )}
+
+      {!loading && !error && (
+        <PrintableShipmentGrid
+          orders={orders}
+          totalCount={totalCount}
+          pageNumber={pageNumber}
+          pageSize={PAGE_SIZE}
+          onPageChange={setPageNumber}
+          ariaLabel={t("dashboard.pending")}
+        />
       )}
     </section>
   );

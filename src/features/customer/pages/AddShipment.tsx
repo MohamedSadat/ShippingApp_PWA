@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
+import { useToast } from "../../../components/Toast";
 import {
   getGovs,
   getZones,
@@ -26,6 +27,7 @@ const EMPTY_ADDRESS: ShipAddressDraft = {
 export function AddShipment() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { showToast } = useToast();
   const { t, i18n } = useTranslation();
 
   const [draft, setDraft] = useState<ShipOrderDraft | null>(null);
@@ -138,8 +140,14 @@ export function AddShipment() {
           phone2: contactPhone2 || null,
         },
       };
-      await saveOrder(user.apiKey, payload);
-      navigate("/customer/shipments");
+      const saved = await saveOrder(user.apiKey, payload);
+      // Optional-chained: the order is saved by now, so an unexpected response
+      // body must not surface as a save error.
+      const orderId = saved?.orderId;
+      showToast(orderId ? t("addShipment.savedWithId", { orderId }) : t("addShipment.saved"));
+      // A new shipment is pending, so it lists on the Dashboard (My Shipment is
+      // completed orders only) — ready to tick and print its label.
+      navigate("/customer");
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : t("common.networkError"));
     } finally {

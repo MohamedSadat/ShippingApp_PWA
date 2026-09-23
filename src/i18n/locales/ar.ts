@@ -53,6 +53,8 @@ export const ar: TranslationSchema = {
     title: "شحناتي",
     loading: "جارٍ تحميل الشحنات...",
     noShipments: "لا توجد شحنات مكتملة بعد.",
+  },
+  shipmentGrid: {
     previous: "السابق",
     next: "التالي",
     page: "صفحة {{page}}",
@@ -94,6 +96,8 @@ export const ar: TranslationSchema = {
     estimatedFreight: "تقدير رسوم الشحن: {{amount}}",
     submit: "حفظ الشحنة",
     submitting: "جارٍ الحفظ...",
+    saved: "تم حفظ الشحنة.",
+    savedWithId: "تم حفظ الشحنة {{orderId}}.",
   },
   myAccount: {
     title: "حسابي",
