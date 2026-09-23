@@ -5,6 +5,8 @@ import { useAuth } from "../../auth/AuthContext";
 import { homePathForRole, roleForUserType } from "../../auth/roles";
 import { login, loginByKey, fetchActiveCompanies, type LoginResult, type CompanyOption } from "../../lib/unifiedApi";
 import { LanguageSwitcher } from "../../components/LanguageSwitcher";
+import { CompanyLogo } from "../../components/CompanyLogo";
+import { loadLastCompanyLogo } from "../../auth/lastCompanyLogo";
 
 type Mode = "credentials" | "apiKey";
 
@@ -17,11 +19,15 @@ type Mode = "credentials" | "apiKey";
  */
 export function LoginPage() {
   const { t } = useTranslation();
-  const { user, signIn } = useAuth();
+  const { user, sessionExpired, signIn } = useAuth();
   const [mode, setMode] = useState<Mode>("credentials");
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-  const [company, setCompany] = useState("Dot");
+  // Company is an advanced option, hidden by default. Unless the user opens it
+  // and picks one, login sends company=null and /api/Login falls back to the
+  // user's organization default company. "" = no pick.
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [company, setCompany] = useState("");
   const fallbackCompanies: CompanyOption[] = [
     { value: "Dot", label: t("login.companyDot") },
     { value: "Kit", label: t("login.companyKit") },
@@ -30,6 +36,8 @@ export function LoginPage() {
   const [apiKeyInput, setApiKeyInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // Logo of the company last signed in to on this device (default logo when none).
+  const [lastLogo] = useState(loadLastCompanyLogo);
 
   // Load the live company list once on mount. The endpoint is anonymous, so it
   // works pre-login. On failure we keep the hardcoded fallback already in state,
@@ -40,7 +48,7 @@ export function LoginPage() {
       .then((list) => {
         if (cancelled || list.length === 0) return;
         setCompanies(list);
-        setCompany((current) => (list.some((c) => c.value === current) ? current : list[0].value));
+        setCompany((current) => (list.some((c) => c.value === current) ? current : ""));
       })
       .catch(() => { /* keep the hardcoded fallback — login stays usable */ });
     return () => { cancelled = true; };
@@ -66,6 +74,7 @@ export function LoginPage() {
       userName: result.userName ?? fallbackUserName,
       name: result.name ?? fallbackUserName,
       company: result.company ?? fallbackCompany,
+      companyLogoUrl: result.companyLogoUrl ?? null,
       apiKey: result.apiKey ?? "",
       userType: result.userType,
       partnerAccountId: result.partnerAccountId,
@@ -79,8 +88,10 @@ export function LoginPage() {
     setError(null);
     setSubmitting(true);
     try {
-      const result = await login({ userName, password, company });
-      applyResult(result, userName, company);
+      // Only send what's on screen: a pick hidden by collapsing the section is dropped.
+      const selectedCompany = showAdvanced && company ? company : null;
+      const result = await login({ userName, password, company: selectedCompany });
+      applyResult(result, userName, selectedCompany ?? "");
     } catch {
       setError(t("common.networkError"));
     } finally {
@@ -110,9 +121,10 @@ export function LoginPage() {
   return (
     <section className="page page--centered">
       <LanguageSwitcher />
-      <img src={import.meta.env.VITE_LOGO_URL} alt="CashGear" className="login-logo" />
+      <CompanyLogo url={lastLogo} className="login-logo" />
       <h1>{t("login.title")}</h1>
       <p>{t("login.subtitle")}</p>
+      {sessionExpired && !error && <p className="login-notice">{t("login.sessionExpired")}</p>}
       <div className="login-mode-toggle">
         <button
           type="button"
@@ -147,11 +159,27 @@ export function LoginPage() {
             className="login-input"
             autoComplete="current-password"
           />
-          <select value={company} onChange={(e) => setCompany(e.target.value)} className="login-input">
-            {companies.map((c) => (
-              <option key={c.value} value={c.value}>{c.label}</option>
-            ))}
-          </select>
+          <button
+            type="button"
+            className="login-advanced-toggle"
+            aria-expanded={showAdvanced}
+            onClick={() => setShowAdvanced((open) => !open)}
+          >
+            {showAdvanced ? t("login.hideAdvancedOptions") : t("login.advancedOptions")}
+          </button>
+          {showAdvanced && (
+            <select
+              value={company}
+              onChange={(e) => setCompany(e.target.value)}
+              className="login-input"
+              aria-label={t("login.company")}
+            >
+              <option value="">{t("login.defaultCompany")}</option>
+              {companies.map((c) => (
+                <option key={c.value} value={c.value}>{c.label}</option>
+              ))}
+            </select>
+          )}
           {error && <p style={{ color: "var(--color-danger)", margin: 0 }}>{error}</p>}
           <button type="submit" disabled={submitting}>
             {submitting ? t("login.signingIn") : t("login.signIn")}

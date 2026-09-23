@@ -14,6 +14,18 @@
       "runtimeArgs": ["run", "preview"],
       "port": 4173,
       "autoPort": true
+    },
+    {
+      "name": "unified-api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "D:\\CashGear\\Projects\\CashGear\\CashGear.UnifiedAPI\\CashGear.UnifiedAPI.csproj",
+        "--launch-profile",
+        "http"
+      ],
+      "port": 5206
     }
   ]
 }

@@ -82,9 +82,11 @@ input {
   padding: 16px;
 }
 
+/* Fixed height, width follows the logo so wide company logos stay legible. */
 .login-logo {
-  width: 96px;
-  height: 96px;
+  width: auto;
+  height: 64px;
+  max-width: 240px;
   object-fit: contain;
 }
 
@@ -126,6 +128,22 @@ input {
   gap: 8px;
   width: 100%;
   max-width: 280px;
+}
+
+.login-notice {
+  max-width: 280px;
+  margin: 0;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Beats `.login-actions button` so the toggle reads as a link, not a primary button. */
+.login-actions .login-advanced-toggle {
+  align-self: flex-start;
+  padding: 4px 0;
+  background: transparent;
+  color: var(--color-primary);
+  font-weight: 500;
 }
 
 .login-mode-toggle {
@@ -433,6 +451,13 @@ textarea.shipment-form__field {
 .order-detail__description {
   color: var(--color-text-muted);
   margin: 8px 0 0;
+}
+
+.company-logo {
+  display: block;
+  height: 56px;
+  max-width: 200px;
+  object-fit: contain;
 }
 
 .lang-switcher {

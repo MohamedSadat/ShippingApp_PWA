@@ -13,10 +13,34 @@ export const UserType = {
 
 export type UserType = (typeof UserType)[keyof typeof UserType];
 
+// Registered by AuthProvider. Called with the rejected key whenever an
+// authenticated request comes back 401 — the key was deactivated or has
+// expired server-side, so the stored session is dead.
+let unauthorizedHandler: ((apiKey: string) => void) | null = null;
+
+export function setUnauthorizedHandler(handler: ((apiKey: string) => void) | null) {
+  unauthorizedHandler = handler;
+}
+
+// fetch for every endpoint behind UnifiedAPI's ApiKey scheme: attaches the
+// X-Api-Key header and reports a 401 to the unauthorized handler. Not used by
+// the anonymous endpoints (login, loginByKey, company list) — a 401 there means
+// bad credentials, not an expired session.
+async function authFetch(apiKey: string, url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers);
+  headers.set("X-Api-Key", apiKey);
+  const response = await fetch(url, { ...init, headers });
+  if (response.status === 401) {
+    unauthorizedHandler?.(apiKey);
+  }
+  return response;
+}
+
 export interface LoginRequest {
   userName: string;
   password: string;
-  company?: string;
+  /** null lets the server fall back to the user's organization default company. */
+  company?: string | null;
   apiKey?: string;
 }
 
@@ -25,6 +49,8 @@ export interface LoginResult {
   userName: string | null;
   name: string | null;
   company: string | null;
+  /** Direct link to the resolved company's uploaded logo (Companies.LogoUrl); null when unset. */
+  companyLogoUrl?: string | null;
   success: boolean;
   message: string;
   partnerAccountId: string | null;
@@ -39,7 +65,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
     body: JSON.stringify({
       userName: request.userName,
       password: request.password,
-      company: request.company ?? "",
+      company: request.company ?? null,
       apiKey: request.apiKey ?? "",
     }),
   });
@@ -141,9 +167,9 @@ export async function getMyOrders(
   pageNumber = 1,
   pageSize = 30,
 ): Promise<PagedOrderResult<ShipOrderDto>> {
-  const response = await fetch(
+  const response = await authFetch(
+    apiKey,
     `${API_BASE_URL}/api/ship/ShipOrder/GetMyOrders?pageNumber=${pageNumber}&pageSize=${pageSize}`,
-    { headers: { "X-Api-Key": apiKey } },
   );
 
   if (!response.ok) {
@@ -161,9 +187,9 @@ async function getPartnerOrders(
   pageNumber: number,
   pageSize: number,
 ): Promise<PagedOrderResult<ShipOrderDto>> {
-  const response = await fetch(
+  const response = await authFetch(
+    apiKey,
     `${API_BASE_URL}/api/ship/ShipOrder/${action}?pageNumber=${pageNumber}&pageSize=${pageSize}`,
-    { headers: { "X-Api-Key": apiKey } },
   );
 
   if (!response.ok) {
@@ -196,9 +222,7 @@ export function getPartnerCompletedOrders(
 }
 
 export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrderDto> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrder/GetOrder/${encodeURIComponent(orderId)}`, {
-    headers: { "X-Api-Key": apiKey },
-  });
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrder/GetOrder/${encodeURIComponent(orderId)}`);
 
   if (!response.ok) {
     throw new Error(`GetOrder failed with status ${response.status}`);
@@ -279,9 +303,7 @@ export interface ShipOrderDraft {
 }
 
 export async function getGovs(apiKey: string): Promise<ShipGov[]> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/GetGovs`, {
-    headers: { "X-Api-Key": apiKey },
-  });
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrderCmd/GetGovs`);
 
   if (!response.ok) {
     throw new Error(`GetGovs failed with status ${response.status}`);
@@ -291,9 +313,7 @@ export async function getGovs(apiKey: string): Promise<ShipGov[]> {
 }
 
 export async function getZones(apiKey: string, govId: number): Promise<ShipZone[]> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/GetZones/${govId}`, {
-    headers: { "X-Api-Key": apiKey },
-  });
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrderCmd/GetZones/${govId}`);
 
   if (!response.ok) {
     throw new Error(`GetZones failed with status ${response.status}`);
@@ -303,9 +323,7 @@ export async function getZones(apiKey: string, govId: number): Promise<ShipZone[
 }
 
 export async function initOrder(apiKey: string): Promise<ShipOrderDraft> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/InitOrder`, {
-    headers: { "X-Api-Key": apiKey },
-  });
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrderCmd/InitOrder`);
 
   if (!response.ok) {
     throw new Error(`InitOrder failed with status ${response.status}`);
@@ -315,9 +333,9 @@ export async function initOrder(apiKey: string): Promise<ShipOrderDraft> {
 }
 
 export async function saveOrder(apiKey: string, draft: ShipOrderDraft): Promise<{ orderId: string }> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/SaveOrder`, {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrderCmd/SaveOrder`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(draft),
   });
 
@@ -330,9 +348,9 @@ export async function saveOrder(apiKey: string, draft: ShipOrderDraft): Promise<
 }
 
 export async function updateZoneFreight(apiKey: string, draft: ShipOrderDraft): Promise<{ freightAmount: number }> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/ShipOrderCmd/UpdateZone`, {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrderCmd/UpdateZone`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(draft),
   });
 
@@ -363,9 +381,9 @@ export interface WorkflowAction {
 }
 
 export async function getAllowedActions(apiKey: string, orderId: string): Promise<WorkflowAction[]> {
-  const response = await fetch(
+  const response = await authFetch(
+    apiKey,
     `${API_BASE_URL}/api/ship/ShipOrderCmd/GetAllowedActions/${encodeURIComponent(orderId)}`,
-    { headers: { "X-Api-Key": apiKey } },
   );
 
   if (!response.ok) {
@@ -384,11 +402,12 @@ export async function updateWorkflow(
   // action's targetStatusCode; the body sends orderId. Align both with the
   // controller signature once it lands (some actions also flag requiresReason /
   // requiresAmount / requiresLocation / requiresAccount for extra payload).
-  const response = await fetch(
+  const response = await authFetch(
+    apiKey,
     `${API_BASE_URL}/api/ship/ShipOrderCmd/updateworkflow/${encodeURIComponent(actionId)}`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ orderId }),
     },
   );
@@ -404,9 +423,7 @@ export async function updateWorkflow(
 // PartnerController — see memory/project_partner_api.md
 
 export async function getAccountBalance(apiKey: string, accountId: string): Promise<number> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/Partner/GetAccountBalance/${encodeURIComponent(accountId)}`, {
-    headers: { "X-Api-Key": apiKey },
-  });
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/Partner/GetAccountBalance/${encodeURIComponent(accountId)}`);
 
   if (!response.ok) {
     throw new Error(`GetAccountBalance failed with status ${response.status}`);
@@ -418,9 +435,7 @@ export async function getAccountBalance(apiKey: string, accountId: string): Prom
 // PushController — see memory/project_unifiedapi_auth.md for the X-Api-Key pattern.
 
 export async function getPushPublicKey(apiKey: string): Promise<string> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/Push/PublicKey`, {
-    headers: { "X-Api-Key": apiKey },
-  });
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/Push/PublicKey`);
 
   if (!response.ok) {
     throw new Error(`GetPushPublicKey failed with status ${response.status}`);
@@ -437,9 +452,9 @@ export interface PushSubscribeRequest {
 }
 
 export async function subscribePush(apiKey: string, subscription: PushSubscribeRequest): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/Push/Subscribe`, {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/Push/Subscribe`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(subscription),
   });
 
@@ -449,9 +464,9 @@ export async function subscribePush(apiKey: string, subscription: PushSubscribeR
 }
 
 export async function unsubscribePush(apiKey: string, endpoint: string): Promise<void> {
-  const response = await fetch(`${API_BASE_URL}/api/ship/Push/Unsubscribe`, {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/Push/Unsubscribe`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ endpoint }),
   });
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
+import { CompanyLogo } from "../../../components/CompanyLogo";
 import { getPartnerPendingOrders, type ShipOrderDto } from "../../../lib/unifiedApi";
 import { formatDate } from "../../../lib/formatDate";
 
@@ -40,6 +41,7 @@ export function Dashboard() {
 
   return (
     <section className="page">
+      <CompanyLogo url={user?.companyLogoUrl} alt={user?.company} className="company-logo" />
       <h1>{t("dashboard.title")}</h1>
       <p>{t("dashboard.welcome", { name: user?.userName })}</p>
 
