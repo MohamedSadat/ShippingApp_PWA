@@ -253,6 +253,21 @@ export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrd
   return response.json();
 }
 
+// ShipOrderController GetBatch — one PDF with a label per order, the same
+// ShipBatchExtendPDF the web app's Print button renders.
+export async function getShipLabelsPdf(apiKey: string, orderIds: string[]): Promise<Blob> {
+  const ids = orderIds.map(encodeURIComponent).join(",");
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrder/GetBatch/${ids}/pdf`, {
+    headers: { Accept: "application/pdf" },
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, `GetBatch failed with status ${response.status}`));
+  }
+
+  return response.blob();
+}
+
 // ShipOrderCmdController — add-shipment flow (GetGovs / GetZones / InitOrder / SaveOrder)
 
 export interface ShipGov {

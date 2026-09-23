@@ -4,6 +4,10 @@ import { VitePWA } from "vite-plugin-pwa";
 
 export default defineConfig({
   base: "/",
+  // @cashgear/ui is a git dependency with react as a peer — same setup as
+  // ERPClient_React: one React copy, and no dev-server pre-bundling of it.
+  resolve: { dedupe: ["react", "react-dom"] },
+  optimizeDeps: { exclude: ["@cashgear/ui"] },
   plugins: [
     react(),
     VitePWA({

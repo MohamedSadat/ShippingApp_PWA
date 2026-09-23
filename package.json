@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@cashgear/ui": "github:MohamedSadat/CashGear.React.UI#7791c80d652cdb0c26a57ac6c9846fadcf380842",
     "@zxing/browser": "^0.2.1",
     "@zxing/library": "^0.23.0",
     "i18next": "^26.3.6",
