@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { useToast } from "../../../components/Toast";
+import { MaskedInput } from "../../../components/MaskedInput";
 import {
   getGovs,
   getZones,
@@ -23,6 +24,9 @@ const EMPTY_ADDRESS: ShipAddressDraft = {
   phone2: null,
   contactName: null,
 };
+
+// Egyptian mobile, same mask as the ERP's shipment form; saved as the 11 digits only.
+const PHONE_MASK = "0000 000 0000";
 
 export function AddShipment() {
   const { user } = useAuth();
@@ -217,13 +221,14 @@ export function AddShipment() {
             required
           />
 
-          <input
+          <MaskedInput
             className="shipment-form__field"
+            mask={PHONE_MASK}
             value={contactPhone}
-            onChange={(e) => setContactPhone(e.target.value)}
+            onValueChange={setContactPhone}
             placeholder={t("addShipment.phonePlaceholder")}
-            type="tel"
-            maxLength={50}
+            title={t("addShipment.phoneFormat")}
+            autoComplete="tel"
             required
           />
 

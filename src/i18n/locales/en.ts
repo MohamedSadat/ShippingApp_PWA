@@ -88,6 +88,7 @@ export const en = {
     streetPlaceholder: "Street address",
     contactNamePlaceholder: "Recipient name",
     phonePlaceholder: "Recipient phone",
+    phoneFormat: "11-digit mobile number, e.g. 0101 234 5678",
     phone2Placeholder: "Recipient phone (alternate, optional)",
     descriptionPlaceholder: "Description",
     codPlaceholder: "COD amount",

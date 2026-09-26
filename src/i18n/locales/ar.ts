@@ -90,6 +90,7 @@ export const ar: TranslationSchema = {
     streetPlaceholder: "عنوان الشارع",
     contactNamePlaceholder: "اسم المستلم",
     phonePlaceholder: "هاتف المستلم",
+    phoneFormat: "رقم موبايل من 11 رقمًا، مثل 0101 234 5678",
     phone2Placeholder: "هاتف المستلم (بديل، اختياري)",
     descriptionPlaceholder: "الوصف",
     codPlaceholder: "مبلغ الدفع عند الاستلام",

@@ -298,6 +298,11 @@ input {
   font: inherit;
 }
 
+/* Numbers stay left-to-right in Arabic, but line up with the other fields. */
+:root[dir="rtl"] .shipment-form__field[dir="ltr"] {
+  text-align: right;
+}
+
 .shipment-form__field:disabled {
   opacity: 0.6;
 }
