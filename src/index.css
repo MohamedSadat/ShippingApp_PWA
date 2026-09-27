@@ -460,6 +460,24 @@ textarea.shipment-form__field {
   overflow-x: auto;
 }
 
+/* A two-line grid cell. The grid's cells don't wrap, so each line is its own
+   block that ellipsizes on its own. */
+.shipment-grid__lines > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shipment-grid__secondary {
+  color: var(--color-text-muted);
+  font-size: 0.85em;
+}
+
+/* Keep the line when there's nothing to show, so every row is the same height. */
+.shipment-grid__secondary:empty::before {
+  content: "\00a0";
+}
+
 .order-list__pagination {
   display: flex;
   align-items: center;

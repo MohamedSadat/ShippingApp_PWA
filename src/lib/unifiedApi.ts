@@ -144,13 +144,18 @@ export async function fetchActiveCompanies(orgId = ORG_ID): Promise<CompanyOptio
 // will be added under this same base route over time.
 
 // Mirrors the backend AddressBook entity. Note `governrate` — the misspelling is
-// the actual property name on the server, not a typo here.
+// the actual property name on the server, not a typo here. It's the legacy free-text
+// governorate; orders saved by GoveId leave it blank and carry `governorate` instead.
 export interface AddressBookModel {
   street?: string | null;
   building?: string | null;
   floor?: string | null;
   city?: string | null;
   governrate?: string | null;
+  goveId?: number | null;
+  zoneId?: number | null;
+  governorate?: { name: string; nameEn: string | null } | null;
+  zone?: { name: string } | null;
   country?: string | null;
   postalcode?: string | null;
   phone?: string | null;

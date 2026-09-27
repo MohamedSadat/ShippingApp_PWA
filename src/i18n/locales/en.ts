@@ -57,7 +57,6 @@ export const en = {
     next: "Next",
     page: "Page {{page}}",
     orderId: "Shipment",
-    date: "Date",
     status: "Status",
     recipient: "Recipient",
     description: "Description",

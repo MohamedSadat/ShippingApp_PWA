@@ -6,7 +6,6 @@ import { CgGrid, type CgGridColumnDescriptor } from "@cashgear/ui";
 // library's JS and CSS stay out of the app shell every agent downloads.
 import "@cashgear/ui/styles.css";
 import type { ShipOrderDto } from "../../../lib/unifiedApi";
-import { formatDate } from "../../../lib/formatDate";
 
 // The app themes off prefers-color-scheme (index.css); @cashgear/ui only goes
 // dark under a data-cg-theme="dark" ancestor, so mirror the media query onto it.
@@ -14,6 +13,15 @@ const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 function subscribeToTheme(onChange: () => void) {
   darkQuery.addEventListener("change", onChange);
   return () => darkQuery.removeEventListener("change", onChange);
+}
+
+// Same naming rule as Add Shipment's governorate picker; older addresses only
+// have the legacy free-text governrate.
+function governorateName(order: ShipOrderDto, language: string): string {
+  const address = order.toAddressModel;
+  const gov = address?.governorate;
+  if (gov) return language === "ar" ? gov.name : gov.nameEn || gov.name;
+  return address?.governrate ?? "";
 }
 
 interface ShipmentGridProps {
@@ -28,6 +36,7 @@ export default function ShipmentGrid({ orders, pageSize, onSelectionChange, aria
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const dark = useSyncExternalStore(subscribeToTheme, () => darkQuery.matches);
+  const language = i18n.language;
 
   const columns = useMemo<CgGridColumnDescriptor<ShipOrderDto>[]>(
     () => [
@@ -40,9 +49,21 @@ export default function ShipmentGrid({ orders, pageSize, onSelectionChange, aria
         width: 130,
         renderCell: ({ item }) => <Link to={`/customer/shipments/${item.orderId}`}>{item.orderId}</Link>,
       },
-      { type: "text", fieldId: "orderDate", title: t("shipmentGrid.date"), accessor: (order) => formatDate(order.orderDate), width: 110 },
       { type: "text", fieldId: "orderStatus", title: t("shipmentGrid.status"), accessor: (order) => order.orderStatus, width: 110 },
-      { type: "text", fieldId: "contactName", title: t("shipmentGrid.recipient"), accessor: (order) => order.contactName, width: 150 },
+      {
+        type: "text",
+        fieldId: "contactName",
+        title: t("shipmentGrid.recipient"),
+        accessor: (order) => order.contactName,
+        width: 160,
+        // Two lines — contact name over governorate — to keep the grid narrow on a phone.
+        renderCell: ({ item }) => (
+          <span className="shipment-grid__lines">
+            <span>{item.contactName}</span>
+            <span className="shipment-grid__secondary">{governorateName(item, language)}</span>
+          </span>
+        ),
+      },
       {
         type: "number",
         fieldId: "codAmount",
@@ -54,7 +75,7 @@ export default function ShipmentGrid({ orders, pageSize, onSelectionChange, aria
       },
       { type: "text", fieldId: "description", title: t("shipmentGrid.description"), accessor: (order) => order.description, width: 180 },
     ],
-    [t],
+    [t, language],
   );
 
   // No search, filter row or sorting: they would only act on the one server page

@@ -59,7 +59,6 @@ export const ar: TranslationSchema = {
     next: "التالي",
     page: "صفحة {{page}}",
     orderId: "الشحنة",
-    date: "التاريخ",
     status: "الحالة",
     recipient: "المستلم",
     description: "الوصف",
