@@ -59,7 +59,6 @@ export const en = {
     orderId: "Shipment",
     status: "Status",
     recipient: "Recipient",
-    description: "Description",
     cod: "COD",
     selected: "{{count}} selected",
     print: "Print",
@@ -152,6 +151,8 @@ export const en = {
     actionRunning: "Applying…",
     actionSuccess: "Action applied.",
     actionError: "Couldn't apply action.",
+    notAssigned: "This shipment isn't assigned to you.",
+    notFound: "Shipment not found.",
     scanNext: "Scan next",
   },
   barcodeScanner: {

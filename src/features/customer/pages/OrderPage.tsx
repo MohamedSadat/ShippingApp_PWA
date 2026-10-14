@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
-import { getOrder, type ShipOrderDto } from "../../../lib/unifiedApi";
+import { ApiStatusError, getOrder, type ShipOrderDto } from "../../../lib/unifiedApi";
 import { formatDate } from "../../../lib/formatDate";
 
 export function OrderPage() {
@@ -23,8 +23,12 @@ export function OrderPage() {
       .then((result) => {
         if (!cancelled) setOrder(result);
       })
-      .catch(() => {
-        if (!cancelled) setError(t("orderPage.error"));
+      .catch((err) => {
+        if (cancelled) return;
+        // 404 is no such shipment, 403 one placed by another account: both read as
+        // "not found" — the page shouldn't confirm someone else's order exists.
+        if (err instanceof ApiStatusError && (err.status === 404 || err.status === 403)) setOrder(null);
+        else setError(t("orderPage.error"));
       })
       .finally(() => {
         if (!cancelled) setLoading(false);

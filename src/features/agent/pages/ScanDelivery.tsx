@@ -4,7 +4,13 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { recordScan } from "../../../lib/scanQueue";
 import { useScanQueueSync } from "../../../lib/useScanQueueSync";
-import { getAllowedActions, getOrder, updateWorkflow, type WorkflowAction } from "../../../lib/unifiedApi";
+import {
+  ApiStatusError,
+  getAllowedActions,
+  getOrder,
+  updateWorkflow,
+  type WorkflowAction,
+} from "../../../lib/unifiedApi";
 
 const BarcodeScanner = lazy(() =>
   import("../../../components/BarcodeScanner").then((m) => ({ default: m.BarcodeScanner })),
@@ -19,6 +25,11 @@ export function ScanDelivery() {
   const [waybillId, setWaybillId] = useState(searchParams.get("waybill") ?? "");
   const [orderId, setOrderId] = useState<string | null>(null);
   const [contactName, setContactName] = useState<string | null>(null);
+  // The order version the agent's actions are based on; updateWorkflow refuses without it.
+  const [rowVersion, setRowVersion] = useState<string | null>(null);
+  // Set when the lookup is refused (403: another agent carries it) or finds nothing (404).
+  // Without the order there's no version to act on, so the actions are hidden.
+  const [orderError, setOrderError] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
   const [actions, setActions] = useState<WorkflowAction[] | null>(null);
@@ -30,14 +41,22 @@ export function ScanDelivery() {
   useScanQueueSync();
 
   // TODO: POD photo capture — required-vs-optional is an open decision (see CLAUDE.md).
-  async function loadContact(id: string) {
-    if (!user) return;
+  // The contact name to show, and the version to send with an action.
+  async function loadOrder(id: string): Promise<string | null> {
+    if (!user) return null;
     setContactName(null);
+    setRowVersion(null);
+    setOrderError(null);
     try {
       const order = await getOrder(user.apiKey, id);
       setContactName(order.contactName || null);
-    } catch {
-      // Non-critical: leave the contact name empty if the lookup fails.
+      setRowVersion(order.rowVersion ?? null);
+      return order.rowVersion ?? null;
+    } catch (err) {
+      if (err instanceof ApiStatusError && err.status === 403) setOrderError(t("scanDelivery.notAssigned"));
+      else if (err instanceof ApiStatusError && err.status === 404) setOrderError(t("scanDelivery.notFound"));
+      // Otherwise (offline, server error) leave the contact empty; runAction retries the lookup.
+      return null;
     }
   }
 
@@ -66,7 +85,7 @@ export function ScanDelivery() {
     setOrderId(waybillId);
     setActionResult(null);
     setActionError(null);
-    await Promise.all([loadContact(waybillId), loadActions(waybillId)]);
+    await Promise.all([loadOrder(waybillId), loadActions(waybillId)]);
   }
 
   async function runAction(action: WorkflowAction) {
@@ -75,11 +94,17 @@ export function ScanDelivery() {
     setActionResult(null);
     setActionError(null);
     try {
-      await updateWorkflow(user.apiKey, action.targetStatusCode, orderId);
+      const version = rowVersion ?? (await loadOrder(orderId));
+      if (!version) throw new Error(t("scanDelivery.actionError"));
+      const result = await updateWorkflow(user.apiKey, action.targetStatusCode, orderId, version);
+      setRowVersion(result.rowVersion);
       setActionResult(t("scanDelivery.actionSuccess"));
       await loadActions(orderId);
     } catch (err) {
       setActionError(err instanceof Error ? err.message : t("scanDelivery.actionError"));
+      // A refusal (often 409: someone else moved the order) leaves the screen stale —
+      // show the order's current version and actions so the agent picks again.
+      await Promise.all([loadOrder(orderId), loadActions(orderId)]);
     } finally {
       setRunningActionId(null);
     }
@@ -89,6 +114,8 @@ export function ScanDelivery() {
     setWaybillId("");
     setOrderId(null);
     setContactName(null);
+    setRowVersion(null);
+    setOrderError(null);
     setStatus(null);
     setActions(null);
     setActionsError(null);
@@ -141,14 +168,16 @@ export function ScanDelivery() {
                 </span>
               )}
 
-              {loadingActions && <p className="card__placeholder">{t("scanDelivery.actionsLoading")}</p>}
-              {actionsError && <p style={{ color: "var(--color-danger)" }}>{actionsError}</p>}
+              {orderError && <p style={{ color: "var(--color-danger)" }}>{orderError}</p>}
+              {!orderError && loadingActions && <p className="card__placeholder">{t("scanDelivery.actionsLoading")}</p>}
+              {!orderError && actionsError && <p style={{ color: "var(--color-danger)" }}>{actionsError}</p>}
 
-              {!loadingActions && !actionsError && actions && actions.length === 0 && (
+              {!orderError && !loadingActions && !actionsError && actions && actions.length === 0 && (
                 <p className="card__placeholder">{t("scanDelivery.noActions")}</p>
               )}
 
-              {!loadingActions &&
+              {!orderError &&
+                !loadingActions &&
                 !actionsError &&
                 actions?.map((action) => (
                   <button

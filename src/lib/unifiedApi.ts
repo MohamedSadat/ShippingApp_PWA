@@ -180,6 +180,8 @@ export interface ShipOrderDto {
   carrierName: string | null;
   custAccountModel: { name: string } | null;
   toAddressModel?: AddressBookModel | null;
+  /** Base64 SQL rowversion. Returned by getOrder only; updateWorkflow must send it back. */
+  rowVersion?: string | null;
 }
 
 export interface PagedOrderResult<T> {
@@ -248,11 +250,26 @@ export function getPartnerCompletedOrders(
   return getPartnerOrders("GetPartnerCompletedOrder", apiKey, pageNumber, pageSize);
 }
 
+/** A failed request whose HTTP status the caller acts on, e.g. 403 vs 404. */
+export class ApiStatusError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
+// GetPartnerOrder holds the key to its own orders: 403 when a customer didn't place
+// the order or an agent doesn't carry it, 404 when the company has no such order.
 export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrderDto> {
-  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrder/GetOrder/${encodeURIComponent(orderId)}`);
+  const response = await authFetch(
+    apiKey,
+    `${API_BASE_URL}/api/ship/ShipOrder/GetPartnerOrder/${encodeURIComponent(orderId)}`,
+  );
 
   if (!response.ok) {
-    throw new Error(`GetOrder failed with status ${response.status}`);
+    throw new ApiStatusError(`GetPartnerOrder failed with status ${response.status}`, response.status);
   }
 
   return response.json();
@@ -433,31 +450,39 @@ export async function getAllowedActions(apiKey: string, orderId: string): Promis
   return response.json();
 }
 
+export interface WorkflowUpdateResult {
+  orderId: string;
+  orderStatus: string;
+  invoiceStatus: number;
+  /** The order's new version — send this, not the old one, with the next action. */
+  rowVersion: string;
+}
+
+// actionId is the action's targetStatusCode. rowVersion is the version the agent
+// last loaded (getOrder): the server answers 409 when the order changed since, and
+// 400 when it is missing. There is no reason/amount/location/account payload yet,
+// so the server rejects an action flagged requiresReason ("Reason required.").
 export async function updateWorkflow(
   apiKey: string,
   actionId: string,
   orderId: string,
-): Promise<{ message?: string }> {
-  // NOTE: the backend updateworkflow endpoint is not built yet. actionId is the
-  // action's targetStatusCode; the body sends orderId. Align both with the
-  // controller signature once it lands (some actions also flag requiresReason /
-  // requiresAmount / requiresLocation / requiresAccount for extra payload).
+  rowVersion: string,
+): Promise<WorkflowUpdateResult> {
   const response = await authFetch(
     apiKey,
     `${API_BASE_URL}/api/ship/ShipOrderCmd/updateworkflow/${encodeURIComponent(actionId)}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId }),
+      body: JSON.stringify({ orderId, rowVersion }),
     },
   );
 
-  const result = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(result.message || `updateWorkflow failed with status ${response.status}`);
+    throw new Error(await readErrorMessage(response, `updateWorkflow failed with status ${response.status}`));
   }
 
-  return result;
+  return response.json();
 }
 
 // PartnerController — see memory/project_partner_api.md

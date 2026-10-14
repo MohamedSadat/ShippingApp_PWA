@@ -61,7 +61,6 @@ export const ar: TranslationSchema = {
     orderId: "الشحنة",
     status: "الحالة",
     recipient: "المستلم",
-    description: "الوصف",
     cod: "الدفع عند الاستلام",
     selected: "المحدد: {{count}}",
     print: "طباعة",
@@ -154,6 +153,8 @@ export const ar: TranslationSchema = {
     actionRunning: "جارٍ التطبيق…",
     actionSuccess: "تم تطبيق الإجراء.",
     actionError: "تعذّر تطبيق الإجراء.",
+    notAssigned: "هذه الشحنة غير مسندة إليك.",
+    notFound: "الشحنة غير موجودة.",
     scanNext: "مسح التالي",
   },
   barcodeScanner: {

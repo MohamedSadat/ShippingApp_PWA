@@ -73,7 +73,6 @@ export default function ShipmentGrid({ orders, pageSize, onSelectionChange, aria
         alignment: "end",
         width: 100,
       },
-      { type: "text", fieldId: "description", title: t("shipmentGrid.description"), accessor: (order) => order.description, width: 180 },
     ],
     [t, language],
   );
