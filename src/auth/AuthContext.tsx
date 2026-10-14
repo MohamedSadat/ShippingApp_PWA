@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { setUnauthorizedHandler, type UserType } from "../lib/unifiedApi";
 import { rememberCompanyLogo } from "./lastCompanyLogo";
-import type { Role } from "./roles";
+import { roleForUserType, type Role } from "./roles";
 
 export interface AuthUser {
   userName: string;
@@ -31,7 +31,16 @@ const STORAGE_KEY = "shippingapp.auth.user";
 function loadStoredUser(): AuthUser | null {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as AuthUser) : null;
+    if (!raw) return null;
+    const stored = JSON.parse(raw) as AuthUser;
+    // The role follows the user type, so a rule change applies to sessions saved
+    // before it: a staff session (no role any more) is dropped.
+    const role = roleForUserType(stored.userType);
+    if (!role) {
+      localStorage.removeItem(STORAGE_KEY);
+      return null;
+    }
+    return { ...stored, role };
   } catch {
     return null;
   }

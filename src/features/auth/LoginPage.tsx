@@ -12,10 +12,11 @@ type Mode = "credentials" | "apiKey";
 
 /**
  * Auth flow for Customer vs Agent role (see CLAUDE.md open decisions)
- * is still unsettled long-term (phone-number OTP for Customer vs
- * staff account for Agent). For now both roles authenticate through
- * the same UnifiedAPI /api/Login (or /api/Login/LogInByKey) used by
- * other CashGear apps.
+ * is still unsettled long-term (e.g. phone-number OTP for Customer).
+ * For now both roles authenticate through the same UnifiedAPI
+ * /api/Login (or /api/Login/LogInByKey) used by other CashGear apps,
+ * with the ERP's partner logins: BPCust → Customer, BPAgent → Agent.
+ * Staff accounts are refused (see roleForUserType).
  */
 export function LoginPage() {
   const { t } = useTranslation();
@@ -70,6 +71,11 @@ export function LoginPage() {
       setError(t("login.incompleteAccount"));
       return;
     }
+    const role = roleForUserType(result.userType);
+    if (!role) {
+      setError(t("login.staffNotSupported"));
+      return;
+    }
     signIn({
       userName: result.userName ?? fallbackUserName,
       name: result.name ?? fallbackUserName,
@@ -79,7 +85,7 @@ export function LoginPage() {
       userType: result.userType,
       partnerAccountId: result.partnerAccountId,
       roles: result.roles,
-      role: roleForUserType(result.userType),
+      role,
     });
   }
 

@@ -280,6 +280,90 @@ input {
   font-weight: 600;
 }
 
+/* Beats `.scan-actions button` so the panel's Cancel reads as secondary next to Confirm. */
+.action-panel .scan-actions__reset {
+  background: transparent;
+  color: var(--color-text);
+}
+
+/* Confirm panel for a status change that takes a reason/amount or settles money. */
+.action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+}
+
+.action-panel__title {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.action-panel__note {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.action-panel__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.action-panel__hint {
+  color: var(--color-text-muted);
+}
+
+.action-panel__error {
+  margin: 0;
+  color: var(--color-danger);
+}
+
+/* Two-way toggle (COD: to hand over / settled). */
+.segmented {
+  display: flex;
+  margin-top: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.segmented__btn {
+  flex: 1;
+  padding: 10px 12px;
+  border: none;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.segmented__btn--active {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.cod-summary {
+  margin: 12px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.cod-amount {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.cod-note {
+  margin: 16px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
 .shipment-form {
   display: flex;
   flex-direction: column;

@@ -42,7 +42,7 @@ Agents will be scanning in low-signal areas. Design for this from day one, not a
 
 - Static hosting target: GitHub Pages vs Azure Static Web Apps
 - POD (proof of delivery) photo capture — required per delivery, or optional?
-- Auth flow for Customer role (likely phone-number-based, consistent with existing CashGear customer identity pattern) vs Agent role (likely tied to existing staff/agent accounts)
+- Auth flow for Customer role (likely phone-number-based, consistent with existing CashGear customer identity pattern). Settled for Agent: the ERP's courier partner logins (`UserType.BPAgent`, role `bpagent`) only — staff user types are refused at login (`roleForUserType` in `src/auth/roles.ts`), since the agent screens act for one courier account
 
 ## Non-Goals (for now)
 

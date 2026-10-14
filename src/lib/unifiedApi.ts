@@ -182,13 +182,33 @@ export interface ShipOrderDto {
   toAddressModel?: AddressBookModel | null;
   /** Base64 SQL rowversion. Returned by getOrder only; updateWorkflow must send it back. */
   rowVersion?: string | null;
+  /** Settlement flags (ShipInvoiceStatus), the merchant's and the courier's. List endpoints only. */
+  invoiceStatus?: ShipInvoiceStatus;
+  vendInvoiceStatus?: ShipInvoiceStatus;
+  /** The due date; once a delivery outcome is posted, its posting date. List endpoints only. */
+  dueDate?: string | null;
 }
+
+/** The backend TShipInvoiceStatus: a settlement flag on a shipment. */
+export const ShipInvoiceStatus = {
+  Open: 0,
+  /** Delivery outcome posted: for a courier, the cash is still with them. */
+  Posted: 1,
+  /** The courier handed the cash over (agent payment journal). */
+  Collected: 2,
+  /** The merchant was paid out. */
+  Remited: 3,
+  Canceled: 4,
+} as const;
+export type ShipInvoiceStatus = (typeof ShipInvoiceStatus)[keyof typeof ShipInvoiceStatus];
 
 export interface PagedOrderResult<T> {
   data: T[];
   totalCount: number;
   pageNumber: number;
   pageSize: number;
+  /** A total over every matching order, when the endpoint fills it (GetAgentCodOrders: COD). */
+  netAmount?: number;
 }
 
 export async function getMyOrders(
@@ -435,6 +455,8 @@ export interface WorkflowAction {
   requiresConfirmation: boolean;
   requiresAmount: boolean;
   isFinal: boolean;
+  /** The BusinessTransaction it runs, e.g. SHIP_DELIVER; tells the settlement outcomes apart. */
+  transactionId: string | null;
 }
 
 export async function getAllowedActions(apiKey: string, orderId: string): Promise<WorkflowAction[]> {
@@ -458,15 +480,27 @@ export interface WorkflowUpdateResult {
   rowVersion: string;
 }
 
+export interface WorkflowInput {
+  /** Required by an action with requiresReason; one of getActionReasons' descriptions. */
+  reason?: string;
+  /**
+   * Cash taken from the receiver. Required for a partial delivery; left out, a
+   * delivery collects the full COD and a failed-pay the freight.
+   */
+  actualCollected?: number;
+}
+
 // actionId is the action's targetStatusCode. rowVersion is the version the agent
 // last loaded (getOrder): the server answers 409 when the order changed since, and
-// 400 when it is missing. There is no reason/amount/location/account payload yet,
-// so the server rejects an action flagged requiresReason ("Reason required.").
+// 400 when it is missing. A missing reason or amount the action needs is a 400
+// ("Reason required." / "Amount required."). There is no location/account payload:
+// actions needing one are done at the hub.
 export async function updateWorkflow(
   apiKey: string,
   actionId: string,
   orderId: string,
   rowVersion: string,
+  input: WorkflowInput = {},
 ): Promise<WorkflowUpdateResult> {
   const response = await authFetch(
     apiKey,
@@ -474,12 +508,34 @@ export async function updateWorkflow(
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ orderId, rowVersion }),
+      body: JSON.stringify({ orderId, rowVersion, reason: input.reason, actualCollected: input.actualCollected }),
     },
   );
 
   if (!response.ok) {
     throw new Error(await readErrorMessage(response, `updateWorkflow failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
+/** A reason option for an action (a LookupValue). */
+export interface ActionReason {
+  code: string;
+  meaning: string;
+  description: string | null;
+}
+
+// The reasons for one action on one order — the lookup list on the action's
+// target status. Empty when the action has none.
+export async function getActionReasons(apiKey: string, orderId: string, actionId: string): Promise<ActionReason[]> {
+  const response = await authFetch(
+    apiKey,
+    `${API_BASE_URL}/api/ship/ShipOrderCmd/GetActionReasons/${encodeURIComponent(orderId)}/${encodeURIComponent(actionId)}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, `GetActionReasons failed with status ${response.status}`));
   }
 
   return response.json();
@@ -492,6 +548,43 @@ export async function getAccountBalance(apiKey: string, accountId: string): Prom
 
   if (!response.ok) {
     throw new Error(`GetAccountBalance failed with status ${response.status}`);
+  }
+
+  return response.json();
+}
+
+/** One of a courier's COD shipments (GetAgentCodOrders). */
+export interface AgentCodOrder {
+  orderId: string;
+  orderDate: string;
+  /** Posting date of the delivery outcome (the settlement sets the due date to it). */
+  dueDate: string | null;
+  /** Status description, as in the partner order lists. */
+  orderStatus: string | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  codAmount: number;
+  /** What the shipment posted to the courier's account (collected − the courier's fee). */
+  agentAmount: number;
+  vendInvoiceStatus: ShipInvoiceStatus;
+}
+
+// A courier key's own COD shipments by settlement: Posted = the cash is still
+// with the courier, Collected = handed over. netAmount is the COD total over all
+// of them, not just this page. Settling is done by accounts, not from the app.
+export async function getAgentCodOrders(
+  apiKey: string,
+  settlement: typeof ShipInvoiceStatus.Posted | typeof ShipInvoiceStatus.Collected,
+  pageNumber = 1,
+  pageSize = 25,
+): Promise<PagedOrderResult<AgentCodOrder>> {
+  const response = await authFetch(
+    apiKey,
+    `${API_BASE_URL}/api/ship/Partner/GetAgentCodOrders?settlement=${settlement}&pageNumber=${pageNumber}&pageSize=${pageSize}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, `GetAgentCodOrders failed with status ${response.status}`));
   }
 
   return response.json();

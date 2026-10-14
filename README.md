@@ -19,7 +19,7 @@ npm install
 npm run dev
 ```
 
-There's no real backend auth wired up yet (see Open Decisions below) — the login screen at `/` is a role picker that stores a mock user in `localStorage` so the gated routing/layouts can be exercised end to end.
+Sign-in goes through UnifiedAPI's `/api/Login` (or an API key via `/api/Login/LogInByKey`) with the ERP's partner logins: a `BPCust` (shipper) account gets the Customer view, a `BPAgent` (courier) account the Agent view. Staff accounts are refused — they use the ERP web app.
 
 ## Project structure
 
@@ -27,7 +27,7 @@ There's no real backend auth wired up yet (see Open Decisions below) — the log
 src/
   auth/            AuthContext, ProtectedRoute, NAV_ACCESS role config
   features/
-    auth/          Login / role-select page (placeholder)
+    auth/          Login page
     customer/      Customer routes, layout, pages
     agent/         Agent routes, layout, pages (manifest, scans, COD)
   components/      Shared UI (NavBar)
@@ -42,7 +42,7 @@ The app is served from the custom domain **shipapp.cashgearerp.com** (configured
 
 ## Open decisions (from CLAUDE.md — not yet settled)
 
-- Real auth flow: phone-based OTP for Customer vs staff-account for Agent, against `UnifiedAPI`
+- Auth flow for Customer: phone-based OTP vs the current partner login (Agent = `BPAgent` courier accounts, settled)
 - POD photo capture: required or optional per delivery
 - Barcode decode library (`zxing-js` vs `html5-qrcode`)
 - Static hosting: currently wired for **GitHub Pages**; Azure Static Web Apps was the other option under consideration

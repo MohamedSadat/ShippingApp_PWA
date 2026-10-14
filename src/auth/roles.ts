@@ -3,13 +3,16 @@ import { UserType } from "../lib/unifiedApi";
 export type Role = "customer" | "agent";
 
 /**
- * BPCust (business-partner customer accounts) get the Customer view.
- * Everything else (Employee/Exec/Supervisor internal staff, and
- * BPAgent) gets the Agent view for now — no privilege differentiation
- * among internal staff roles yet.
+ * The app serves shipping partners only, as the ERP's partner logins do:
+ * BPCust (shipper) accounts get the Customer view, BPAgent (courier)
+ * accounts the Agent view. Staff (Employee/Exec/Supervisor) get null —
+ * they work in the ERP web app, and the agent screens act for one
+ * courier account, which a staff key doesn't have.
  */
-export function roleForUserType(userType: UserType): Role {
-  return userType === UserType.BPCust ? "customer" : "agent";
+export function roleForUserType(userType: UserType): Role | null {
+  if (userType === UserType.BPCust) return "customer";
+  if (userType === UserType.BPAgent) return "agent";
+  return null;
 }
 
 export interface NavItem {
