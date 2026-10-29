@@ -553,6 +553,111 @@ export async function getAccountBalance(apiKey: string, accountId: string): Prom
   return response.json();
 }
 
+/** A weekly statement's state. A partner key only ever gets Sent, Agreed or Disputed ones. */
+export const StatementStatus = {
+  Draft: 0,
+  Sent: 1,
+  Agreed: 2,
+  Disputed: 3,
+  Superseded: 4,
+} as const;
+
+export type StatementStatus = (typeof StatementStatus)[keyof typeof StatementStatus];
+
+/**
+ * One weekly statement (GetStatements). Amounts are as the ledger keeps them:
+ * a merchant's balance is negative when the company owes the merchant.
+ */
+export interface PartnerStatement {
+  statementId: string;
+  periodFrom: string;
+  periodTo: string;
+  dueDate: string;
+  version: number;
+  status: StatementStatus;
+  opening: number;
+  collected: number;
+  fees: number;
+  settled: number;
+  payments: number;
+  closing: number;
+  /** Shipments held until the agency hands the cash over. */
+  heldAmount: number;
+  outstandingCount: number;
+  outstandingCOD: number;
+  /** Payments posted since the week's end. */
+  paidSince: number;
+  /** The closing balance less what was paid since. */
+  unpaid: number;
+  /** What is still owed once the due date has passed. */
+  overdue: number;
+  note: string | null;
+}
+
+// The account's weekly statements, latest week first.
+export async function getStatements(apiKey: string, accountId: string): Promise<PartnerStatement[]> {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/Partner/GetStatements/${encodeURIComponent(accountId)}`);
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, `GetStatements failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
+export async function getStatementPdf(apiKey: string, statementId: string): Promise<Blob> {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/Partner/GetStatement/${encodeURIComponent(statementId)}/pdf`, {
+    headers: { Accept: "application/pdf" },
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, `GetStatement failed with status ${response.status}`));
+  }
+
+  return response.blob();
+}
+
+export const PartnerTransType = {
+  /** A shipment's settlement or a fee. */
+  Invoice: 3,
+  Payment: 4,
+} as const;
+
+export type PartnerTransType = (typeof PartnerTransType)[keyof typeof PartnerTransType];
+
+/** One ledger row; balance is the running balance after it. */
+export interface PartnerTransLine {
+  transDate: string;
+  transType: PartnerTransType;
+  /** The shipment or pickup the row is for. */
+  invoice: string | null;
+  documentId: string | null;
+  text: string | null;
+  amount: number;
+  balance: number;
+}
+
+export interface PartnerTransWindow {
+  opening: number;
+  closing: number;
+  rows: PartnerTransLine[];
+}
+
+// The account's ledger between two dates (yyyy-mm-dd, both included, a year at most).
+export async function getTransactions(apiKey: string, accountId: string, from: string, to: string): Promise<PartnerTransWindow> {
+  const query = `from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`;
+  const response = await authFetch(
+    apiKey,
+    `${API_BASE_URL}/api/ship/Partner/GetTransactions/${encodeURIComponent(accountId)}?${query}`,
+  );
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, `GetTransactions failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
 /** One of a courier's COD shipments (GetAgentCodOrders). */
 export interface AgentCodOrder {
   orderId: string;
