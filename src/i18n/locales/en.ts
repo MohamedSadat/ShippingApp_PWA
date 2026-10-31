@@ -177,6 +177,8 @@ export const en = {
     waybillPlaceholder: "Scan or enter waybill ID",
     submit: "Record pickup",
     queued: "Pickup queued for {{id}}",
+    collected: "{{id}} collected on your pickup",
+    alreadyCollected: "{{id}} is already on your pickup",
   },
   scanDelivery: {
     title: "Delivery scan",

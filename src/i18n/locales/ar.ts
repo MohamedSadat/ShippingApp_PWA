@@ -179,6 +179,8 @@ export const ar: TranslationSchema = {
     waybillPlaceholder: "امسح أو أدخل رقم البوليصة",
     submit: "تسجيل الاستلام",
     queued: "تم إدراج الاستلام لـ {{id}}",
+    collected: "تم تسجيل {{id}} على طلب البيكاب",
+    alreadyCollected: "{{id}} مسجل بالفعل على طلب البيكاب",
   },
   scanDelivery: {
     title: "مسح التسليم",

@@ -280,6 +280,37 @@ export class ApiStatusError extends Error {
   }
 }
 
+/** A shipment scanned into a pickup (ShipPickupController). */
+export interface PickupScanResult {
+  orderId: string;
+  contactName: string | null;
+  orderStatus: string;
+  codAmount: number;
+  /** This scan moved it from Draft to Picked. */
+  moved: boolean;
+}
+
+// ShipPickup scan: the courier's open pickup at the shipment's merchant takes the shipment
+// (linked to the pickup, Draft → Picked). The code is the shipment number or its tracking
+// number. 400 with the reason when it cannot: no open pickup there, several, another
+// merchant's pickup, or already collected on another one.
+export async function scanPickup(apiKey: string, code: string): Promise<PickupScanResult> {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/pickups/scan`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ code }),
+  });
+
+  if (!response.ok) {
+    throw new ApiStatusError(
+      await readErrorMessage(response, `scanPickup failed with status ${response.status}`),
+      response.status,
+    );
+  }
+
+  return response.json();
+}
+
 // GetPartnerOrder holds the key to its own orders: 403 when a customer didn't place
 // the order or an agent doesn't carry it, 404 when the company has no such order.
 export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrderDto> {
