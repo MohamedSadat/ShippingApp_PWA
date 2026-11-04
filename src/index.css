@@ -600,6 +600,17 @@ textarea.shipment-form__field {
   margin: 0 0 8px;
 }
 
+.order-detail__edit {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-primary);
+  color: #fff;
+  font-weight: 600;
+}
+
 .account-balance__amount {
   font-size: 1.75rem;
   font-weight: 700;

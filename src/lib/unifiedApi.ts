@@ -172,6 +172,8 @@ export interface ShipOrderDto {
   custAccount: string;
   contactName: string;
   contactPhone: string | null;
+  /** Returned by getOrder only. */
+  contactPhone2?: string | null;
   description: string | null;
   codAmount: number;
   freightAmount: number;
@@ -180,8 +182,10 @@ export interface ShipOrderDto {
   carrierName: string | null;
   custAccountModel: { name: string } | null;
   toAddressModel?: AddressBookModel | null;
-  /** Base64 SQL rowversion. Returned by getOrder only; updateWorkflow must send it back. */
+  /** Base64 SQL rowversion. Returned by getOrder only; updateWorkflow and updateDraftOrder must send it back. */
   rowVersion?: string | null;
+  /** The server's answer to whether the customer can still edit this shipment (updateDraftOrder). Returned by getOrder only. */
+  canEditDraft?: boolean;
   /** Settlement flags (ShipInvoiceStatus), the merchant's and the courier's. List endpoints only. */
   invoiceStatus?: ShipInvoiceStatus;
   vendInvoiceStatus?: ShipInvoiceStatus;
@@ -465,6 +469,46 @@ export async function updateZoneFreight(apiKey: string, draft: ShipOrderDraft): 
 
   if (!response.ok) {
     throw new Error(await readErrorMessage(response, `UpdateZone failed with status ${response.status}`));
+  }
+
+  return response.json();
+}
+
+// ShipOrderCmd UpdateDraft: the customer corrects their own shipment while it is a draft.
+// Every field is replaced, so a null contactPhone2 clears it. rowVersion is the version
+// last read (getOrder): 409 means the shipment changed since, so read it again rather
+// than retrying. Freight is the server's: a new destination reprices it.
+export interface ShipDraftEdit {
+  orderId: string;
+  rowVersion: string;
+  codAmount: number;
+  contactName: string;
+  contactPhone: string;
+  contactPhone2: string | null;
+  goveId: number;
+  zoneId: number;
+  street: string;
+}
+
+export interface ShipDraftEditResult {
+  orderId: string;
+  codAmount: number;
+  freightAmount: number;
+  rowVersion: string;
+}
+
+export async function updateDraftOrder(apiKey: string, edit: ShipDraftEdit): Promise<ShipDraftEditResult> {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrderCmd/UpdateDraft`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(edit),
+  });
+
+  if (!response.ok) {
+    throw new ApiStatusError(
+      await readErrorMessage(response, `UpdateDraft failed with status ${response.status}`),
+      response.status,
+    );
   }
 
   return response.json();

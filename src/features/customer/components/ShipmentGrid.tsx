@@ -6,6 +6,7 @@ import { CgGrid, type CgGridColumnDescriptor } from "@cashgear/ui";
 // library's JS and CSS stay out of the app shell every agent downloads.
 import "@cashgear/ui/styles.css";
 import type { ShipOrderDto } from "../../../lib/unifiedApi";
+import { governorateName } from "../shipmentFields";
 
 // The app themes off prefers-color-scheme (index.css); @cashgear/ui only goes
 // dark under a data-cg-theme="dark" ancestor, so mirror the media query onto it.
@@ -13,15 +14,6 @@ const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 function subscribeToTheme(onChange: () => void) {
   darkQuery.addEventListener("change", onChange);
   return () => darkQuery.removeEventListener("change", onChange);
-}
-
-// Same naming rule as Add Shipment's governorate picker; older addresses only
-// have the legacy free-text governrate.
-function governorateName(order: ShipOrderDto, language: string): string {
-  const address = order.toAddressModel;
-  const gov = address?.governorate;
-  if (gov) return language === "ar" ? gov.name : gov.nameEn || gov.name;
-  return address?.governrate ?? "";
 }
 
 interface ShipmentGridProps {

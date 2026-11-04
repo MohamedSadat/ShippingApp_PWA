@@ -15,6 +15,7 @@ import {
   type ShipOrderDraft,
   type ShipAddressDraft,
 } from "../../../lib/unifiedApi";
+import { PHONE_MASK } from "../shipmentFields";
 
 const EMPTY_ADDRESS: ShipAddressDraft = {
   goveId: 0,
@@ -24,9 +25,6 @@ const EMPTY_ADDRESS: ShipAddressDraft = {
   phone2: null,
   contactName: null,
 };
-
-// Egyptian mobile, same mask as the ERP's shipment form; saved as the 11 digits only.
-const PHONE_MASK = "0000 000 0000";
 
 export function AddShipment() {
   const { user } = useAuth();
