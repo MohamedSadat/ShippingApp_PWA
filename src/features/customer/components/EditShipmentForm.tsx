@@ -45,6 +45,7 @@ export function EditShipmentForm({ order, onSaved, onConflict, onCancel }: EditS
   const [contactPhone, setContactPhone] = useState(order.contactPhone ?? "");
   const [contactPhone2, setContactPhone2] = useState(order.contactPhone2 ?? "");
   const [codAmount, setCodAmount] = useState(String(order.codAmount));
+  const [allowOpen, setAllowOpen] = useState(order.allowOpen ?? false);
 
   // Decided once, from what is stored. The mask would show only the first 11 digits of a
   // longer imported number while keeping them all, and a number that came from Shopify or
@@ -110,6 +111,7 @@ export function EditShipmentForm({ order, onSaved, onConflict, onCancel }: EditS
         // Blank is refused by the server with a message, rather than failing silently here.
         rowVersion: order.rowVersion ?? "",
         codAmount: Number(codAmount),
+        allowOpen,
         contactName,
         contactPhone,
         contactPhone2: contactPhone2 || null,
@@ -246,6 +248,11 @@ export function EditShipmentForm({ order, onSaved, onConflict, onCancel }: EditS
           maxLength={250}
           required
         />
+      </label>
+
+      <label className="shipment-form__check">
+        <input type="checkbox" checked={allowOpen} onChange={(e) => setAllowOpen(e.target.checked)} />
+        <span>{t("addShipment.allowOpen")}</span>
       </label>
 
       <small className="action-panel__hint">{t("orderPage.editFreightNote")}</small>

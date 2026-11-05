@@ -46,6 +46,7 @@ export function AddShipment() {
   const [contactPhone2, setContactPhone2] = useState("");
   const [description, setDescription] = useState("");
   const [codAmount, setCodAmount] = useState("");
+  const [allowOpen, setAllowOpen] = useState(false);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -60,6 +61,8 @@ export function AddShipment() {
       .then(([draftOrder, govList]) => {
         if (cancelled) return;
         setDraft(draftOrder);
+        // The new order starts from the customer's own setting (NewOrder reads it from their account).
+        setAllowOpen(draftOrder.allowOpen);
         setGovs(govList);
       })
       .catch(() => {
@@ -132,6 +135,7 @@ export function AddShipment() {
         contactPhone2: contactPhone2 || null,
         description: description || null,
         codAmount: Number(codAmount) || 0,
+        allowOpen,
         toAddressModel: {
           ...draft.toAddressModel,
           goveId: Number(selectedGovId),
@@ -258,6 +262,11 @@ export function AddShipment() {
             min="0"
             step="0.01"
           />
+
+          <label className="shipment-form__check">
+            <input type="checkbox" checked={allowOpen} onChange={(e) => setAllowOpen(e.target.checked)} />
+            <span>{t("addShipment.allowOpen")}</span>
+          </label>
 
           {freightAmount !== null && (
             <p className="card__placeholder">

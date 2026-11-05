@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { LanguageSwitcher } from "../../../components/LanguageSwitcher";
+import { PLAY_STORE_URL, PORTAL_URL } from "../../../lib/appLinks";
 
 export function Settings() {
   const { t } = useTranslation();
@@ -20,6 +21,14 @@ export function Settings() {
       </div>
       <div className="card">
         <Link to={`${settingsPath}/notifications`}>{t("settings.notifications")}</Link>
+      </div>
+      <div className="card settings-links">
+        <a href={PORTAL_URL} target="_blank" rel="noopener noreferrer">
+          {t("settings.portal")}
+        </a>
+        <a href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">
+          {t("settings.androidApp")}
+        </a>
       </div>
       <div className="card">
         <button type="button" className="settings-signout" onClick={signOut}>

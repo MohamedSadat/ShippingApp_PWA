@@ -132,6 +132,19 @@ input {
   max-width: 280px;
 }
 
+.settings-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.login-app-link {
+  max-width: 280px;
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  text-align: center;
+}
+
 .login-notice {
   max-width: 280px;
   margin: 0;
@@ -620,6 +633,39 @@ textarea.shipment-form__field {
 .order-detail__description {
   color: var(--color-text-muted);
   margin: 8px 0 0;
+}
+
+.order-detail__status-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+}
+
+.order-history__badge {
+  margin-inline-start: 6px;
+  padding: 1px 6px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+  font-weight: 400;
+}
+
+.order-history__amount {
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+
+.shipment-form__check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.shipment-form__check input {
+  width: 18px;
+  height: 18px;
+  flex: none;
 }
 
 .company-logo {

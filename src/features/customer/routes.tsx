@@ -4,6 +4,7 @@ import { CustomerLayout } from "./CustomerLayout";
 import { Dashboard } from "./pages/Dashboard";
 import { MyShipment } from "./pages/MyShipment";
 import { OrderPage } from "./pages/OrderPage";
+import { OrderHistoryPage } from "./pages/OrderHistoryPage";
 import { AddShipment } from "./pages/AddShipment";
 import { MyAccount } from "./pages/MyAccount";
 import { Settings } from "../shared/pages/Settings";
@@ -17,6 +18,7 @@ export function customerRoutes() {
         <Route path="/customer/shipments" element={<MyShipment />} />
         <Route path="/customer/shipments/new" element={<AddShipment />} />
         <Route path="/customer/shipments/:orderId" element={<OrderPage />} />
+        <Route path="/customer/shipments/:orderId/history" element={<OrderHistoryPage />} />
         <Route path="/customer/account" element={<MyAccount />} />
         <Route path="/customer/settings" element={<Settings />} />
         <Route path="/customer/settings/notifications" element={<Notifications />} />

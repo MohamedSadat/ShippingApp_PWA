@@ -174,6 +174,8 @@ export interface ShipOrderDto {
   contactPhone: string | null;
   /** Returned by getOrder only. */
   contactPhone2?: string | null;
+  /** Whether the receiver may open the parcel before accepting it; printed on the label. Returned by getOrder only. */
+  allowOpen?: boolean;
   description: string | null;
   codAmount: number;
   freightAmount: number;
@@ -325,6 +327,36 @@ export async function getOrder(apiKey: string, orderId: string): Promise<ShipOrd
 
   if (!response.ok) {
     throw new ApiStatusError(`GetPartnerOrder failed with status ${response.status}`, response.status);
+  }
+
+  return response.json();
+}
+
+/** One row of a shipment's history (backend ShipPartnerHistoryRow). Amounts are set only on settlement rows. */
+export interface ShipHistoryRow {
+  recId: number;
+  date: string;
+  statusFrom: string | null;
+  statusTo: string | null;
+  /** This row reversed an earlier status change. */
+  isUndo: boolean;
+  /** A later Undo row reversed this one. */
+  isUndone: boolean;
+  notes: string | null;
+  collected: number | null;
+  codAmount: number | null;
+  freight: number | null;
+}
+
+// Oldest first, under the same rule as getOrder: 403 when the key doesn't own the order, 404 when there's none.
+export async function getOrderHistory(apiKey: string, orderId: string): Promise<ShipHistoryRow[]> {
+  const response = await authFetch(
+    apiKey,
+    `${API_BASE_URL}/api/ship/ShipOrder/GetPartnerOrderHistory/${encodeURIComponent(orderId)}`,
+  );
+
+  if (!response.ok) {
+    throw new ApiStatusError(`GetPartnerOrderHistory failed with status ${response.status}`, response.status);
   }
 
   return response.json();
@@ -482,6 +514,7 @@ export interface ShipDraftEdit {
   orderId: string;
   rowVersion: string;
   codAmount: number;
+  allowOpen: boolean;
   contactName: string;
   contactPhone: string;
   contactPhone2: string | null;

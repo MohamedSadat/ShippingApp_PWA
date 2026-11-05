@@ -6,6 +6,8 @@ export const ar: TranslationSchema = {
     loading: "جارٍ التحميل...",
     networkError: "تعذر الوصول إلى الخادم. تحقق من الاتصال وحاول مرة أخرى.",
     notAssigned: "غير محدد",
+    yes: "نعم",
+    no: "لا",
   },
   nav: {
     dashboard: "الرئيسية",
@@ -40,6 +42,7 @@ export const ar: TranslationSchema = {
     loginFailed: "فشل تسجيل الدخول",
     incompleteAccount: "تم تسجيل الدخول لكن بيانات الحساب غير مكتملة (نوع المستخدم مفقود). تواصل مع الدعم الفني.",
     staffNotSupported: "هذا التطبيق مخصص للعملاء والمناديب. حسابات الموظفين تسجّل الدخول من تطبيق الويب.",
+    androidApp: "سجل الدخول من Google Play",
   },
   dashboard: {
     title: "الرئيسية",
@@ -89,6 +92,15 @@ export const ar: TranslationSchema = {
     editSaved: "تم تعديل الشحنة. إذا كنت قد طبعت الملصق، فاطبعه مرة أخرى.",
     editConflict: "تغيّرت هذه الشحنة بعد فتحها، لذا لم يتم حفظ تعديلك. راجع البيانات وحاول مرة أخرى.",
   },
+  orderHistory: {
+    title: "سجل الشحنة",
+    loading: "جارٍ تحميل السجل...",
+    empty: "لا يوجد سجل لهذه الشحنة بعد.",
+    from: "من: {{status}}",
+    undo: "تراجع",
+    undone: "تم التراجع عنها",
+    collected: "المحصّل",
+  },
   addShipment: {
     title: "إضافة شحنة",
     loading: "جارٍ تحميل النموذج...",
@@ -102,6 +114,7 @@ export const ar: TranslationSchema = {
     phone2Placeholder: "هاتف المستلم (بديل، اختياري)",
     descriptionPlaceholder: "الوصف",
     codPlaceholder: "مبلغ الدفع عند الاستلام",
+    allowOpen: "السماح بالفتح",
     estimatedFreight: "تقدير رسوم الشحن: {{amount}}",
     submit: "حفظ الشحنة",
     submitting: "جارٍ الحفظ...",
@@ -144,6 +157,8 @@ export const ar: TranslationSchema = {
     noSettings: "لا توجد إعدادات بعد.",
     notifications: "الإشعارات",
     language: "اللغة",
+    portal: "البوابة: www.cashgearerp.com",
+    androidApp: "تطبيق أندرويد على Google Play",
     signOut: "تسجيل الخروج",
   },
   notifications: {

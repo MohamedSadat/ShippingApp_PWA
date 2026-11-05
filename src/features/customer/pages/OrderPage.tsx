@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { useToast } from "../../../components/Toast";
@@ -120,12 +120,25 @@ export function OrderPage() {
           <div className="card">
             <div className="order-list__row">
               <span className="order-list__id">{order.orderId}</span>
-              <span className="order-list__status">{order.orderStatus}</span>
+              {/* False, not just falsy: an API without the field can't tell a draft, or serve the history. */}
+              {order.canEditDraft === false ? (
+                <Link
+                  className="order-list__status order-detail__status-link"
+                  to={`/customer/shipments/${encodeURIComponent(order.orderId)}/history`}
+                >
+                  {order.orderStatus}
+                </Link>
+              ) : (
+                <span className="order-list__status">{order.orderStatus}</span>
+              )}
             </div>
             <div className="order-list__row">
               <span className="order-list__date">{formatDate(order.orderDate)}</span>
             </div>
             {order.description && <p className="order-detail__description">{order.description}</p>}
+            <p className="order-detail__description">
+              {t("addShipment.allowOpen")}: {order.allowOpen ? t("common.yes") : t("common.no")}
+            </p>
           </div>
 
           <div className="card">

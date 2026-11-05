@@ -7,6 +7,7 @@ import { login, loginByKey, fetchActiveCompanies, type LoginResult, type Company
 import { LanguageSwitcher } from "../../components/LanguageSwitcher";
 import { CompanyLogo } from "../../components/CompanyLogo";
 import { loadLastCompanyLogo } from "../../auth/lastCompanyLogo";
+import { PLAY_STORE_URL } from "../../lib/appLinks";
 
 type Mode = "credentials" | "apiKey";
 
@@ -206,6 +207,9 @@ export function LoginPage() {
           </button>
         </form>
       )}
+      <a className="login-app-link" href={PLAY_STORE_URL} target="_blank" rel="noopener noreferrer">
+        {t("login.androidApp")}
+      </a>
     </section>
   );
 }

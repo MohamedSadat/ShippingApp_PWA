@@ -4,6 +4,8 @@ export const en = {
     loading: "Loading...",
     networkError: "Unable to reach the server. Check your connection and try again.",
     notAssigned: "Not assigned",
+    yes: "Yes",
+    no: "No",
   },
   nav: {
     dashboard: "Dashboard",
@@ -38,6 +40,7 @@ export const en = {
     loginFailed: "Login failed",
     incompleteAccount: "Login succeeded but account data is incomplete (missing user type). Contact support.",
     staffNotSupported: "This app is for shippers and couriers. Staff accounts sign in to the ERP web app.",
+    androidApp: "Login from Google Play",
   },
   dashboard: {
     title: "Dashboard",
@@ -87,6 +90,15 @@ export const en = {
     editSaved: "Shipment updated. If you already printed its label, print it again.",
     editConflict: "This shipment changed since you opened it, so your edit wasn't saved. Check the details and try again.",
   },
+  orderHistory: {
+    title: "Shipment history",
+    loading: "Loading history...",
+    empty: "No history for this shipment yet.",
+    from: "From: {{status}}",
+    undo: "Undo",
+    undone: "Undone",
+    collected: "Collected",
+  },
   addShipment: {
     title: "Add Shipment",
     loading: "Loading form...",
@@ -100,6 +112,7 @@ export const en = {
     phone2Placeholder: "Recipient phone (alternate, optional)",
     descriptionPlaceholder: "Description",
     codPlaceholder: "COD amount",
+    allowOpen: "Allow Open",
     estimatedFreight: "Estimated freight: {{amount}}",
     submit: "Save shipment",
     submitting: "Saving...",
@@ -142,6 +155,8 @@ export const en = {
     noSettings: "No settings yet.",
     notifications: "Notifications",
     language: "Language",
+    portal: "Portal: www.cashgearerp.com",
+    androidApp: "Android app on Google Play",
     signOut: "Sign out",
   },
   notifications: {
