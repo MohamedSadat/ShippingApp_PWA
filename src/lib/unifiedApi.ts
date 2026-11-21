@@ -276,6 +276,39 @@ export function getPartnerCompletedOrders(
   return getPartnerOrders("GetPartnerCompletedOrder", apiKey, pageNumber, pageSize);
 }
 
+/** Shipments in each status bucket over a period (GetPartnerDashboard, docs/dashboard-api.md). */
+export interface PartnerDashboardCounts {
+  awaiting: number;
+  inWarehouse: number;
+  outForDelivery: number;
+  delivered: number;
+  redelivery: number;
+  failed: number;
+}
+
+export interface PartnerDashboard {
+  /** yyyy-mm-dd, both included. */
+  from: string;
+  to: string;
+  counts: PartnerDashboardCounts;
+}
+
+// The customer's shipment counts by status over the last `days` days, from the API key's
+// own claims like GetPartnerPendingOrder (contract: docs/dashboard-api.md). null while the
+// server has no such endpoint (404), so the Dashboard shows no numbers rather than wrong ones.
+export async function getPartnerDashboard(apiKey: string, days: number): Promise<PartnerDashboard | null> {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/ship/ShipOrder/GetPartnerDashboard?days=${days}`);
+
+  if (response.status === 404) return null;
+  if (!response.ok) {
+    throw new Error(`GetPartnerDashboard failed with status ${response.status}`);
+  }
+
+  // A user type the endpoint doesn't handle answers 200 with an empty body.
+  const body = await response.text();
+  return body ? JSON.parse(body) : null;
+}
+
 /** A failed request whose HTTP status the caller acts on, e.g. 403 vs 404. */
 export class ApiStatusError extends Error {
   readonly status: number;
