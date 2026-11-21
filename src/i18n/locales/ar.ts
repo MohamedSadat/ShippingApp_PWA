@@ -181,12 +181,17 @@ export const ar: TranslationSchema = {
   },
   settings: {
     title: "الإعدادات",
-    noSettings: "لا توجد إعدادات بعد.",
     notifications: "الإشعارات",
     language: "اللغة",
     portal: "البوابة: www.cashgearerp.com",
     androidApp: "تطبيق أندرويد على Google Play",
     signOut: "تسجيل الخروج",
+  },
+  theme: {
+    title: "المظهر",
+    system: "تلقائي",
+    light: "فاتح",
+    dark: "داكن",
   },
   notifications: {
     title: "الإشعارات",

@@ -1,20 +1,16 @@
-import { useMemo, useSyncExternalStore } from "react";
+import { useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { CgGrid, type CgGridColumnDescriptor } from "@cashgear/ui";
 // Imported here, not in main.tsx: this component is lazy-loaded, so the
 // library's JS and CSS stay out of the app shell every agent downloads.
 import "@cashgear/ui/styles.css";
+import { useIsDark } from "../../../lib/theme";
 import type { ShipOrderDto } from "../../../lib/unifiedApi";
 import { governorateName } from "../shipmentFields";
 
-// The app themes off prefers-color-scheme (index.css); @cashgear/ui only goes
-// dark under a data-cg-theme="dark" ancestor, so mirror the media query onto it.
-const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
-function subscribeToTheme(onChange: () => void) {
-  darkQuery.addEventListener("change", onChange);
-  return () => darkQuery.removeEventListener("change", onChange);
-}
+// The app themes off the device setting or the user's Light/Dark pick (lib/theme.ts);
+// @cashgear/ui only goes dark under a data-cg-theme="dark" ancestor, so mirror it onto it.
 
 interface ShipmentGridProps {
   orders: ShipOrderDto[];
@@ -27,7 +23,7 @@ interface ShipmentGridProps {
 export default function ShipmentGrid({ orders, pageSize, onSelectionChange, ariaLabel }: ShipmentGridProps) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
-  const dark = useSyncExternalStore(subscribeToTheme, () => darkQuery.matches);
+  const dark = useIsDark();
   const language = i18n.language;
 
   const columns = useMemo<CgGridColumnDescriptor<ShipOrderDto>[]>(

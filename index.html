@@ -14,6 +14,11 @@
         var lang = localStorage.getItem("shippingapp.lang") || "en";
         document.documentElement.lang = lang;
         document.documentElement.dir = lang === "ar" ? "rtl" : "ltr";
+        // Light or Dark picked on Settings (lib/theme.ts); none follows the device.
+        try {
+          var theme = localStorage.getItem("shippingapp.theme");
+          if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme;
+        } catch (e) {}
       })();
     </script>
   </head>

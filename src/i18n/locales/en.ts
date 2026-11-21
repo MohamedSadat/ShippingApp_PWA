@@ -179,12 +179,17 @@ export const en = {
   },
   settings: {
     title: "Settings",
-    noSettings: "No settings yet.",
     notifications: "Notifications",
     language: "Language",
     portal: "Portal: www.cashgearerp.com",
     androidApp: "Android app on Google Play",
     signOut: "Sign out",
+  },
+  theme: {
+    title: "Theme",
+    system: "System",
+    light: "Light",
+    dark: "Dark",
   },
   notifications: {
     title: "Notifications",

@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { LanguageSwitcher } from "../../../components/LanguageSwitcher";
+import { ThemeSwitcher } from "../../../components/ThemeSwitcher";
 import { PLAY_STORE_URL, PORTAL_URL } from "../../../lib/appLinks";
 
 export function Settings() {
@@ -17,7 +18,8 @@ export function Settings() {
         <LanguageSwitcher />
       </div>
       <div className="card">
-        <p className="card__placeholder">{t("settings.noSettings")}</p>
+        <p className="card__placeholder">{t("theme.title")}</p>
+        <ThemeSwitcher labels />
       </div>
       <div className="card">
         <Link to={`${settingsPath}/notifications`}>{t("settings.notifications")}</Link>

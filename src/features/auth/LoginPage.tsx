@@ -5,6 +5,7 @@ import { useAuth } from "../../auth/AuthContext";
 import { homePathForRole, roleForUserType } from "../../auth/roles";
 import { login, loginByKey, fetchActiveCompanies, type LoginResult, type CompanyOption } from "../../lib/unifiedApi";
 import { LanguageSwitcher } from "../../components/LanguageSwitcher";
+import { ThemeSwitcher } from "../../components/ThemeSwitcher";
 import { CompanyLogo } from "../../components/CompanyLogo";
 import { loadLastCompanyLogo } from "../../auth/lastCompanyLogo";
 import { PLAY_STORE_URL } from "../../lib/appLinks";
@@ -127,7 +128,10 @@ export function LoginPage() {
 
   return (
     <section className="page page--centered">
-      <LanguageSwitcher />
+      <div className="top-controls">
+        <ThemeSwitcher />
+        <LanguageSwitcher />
+      </div>
       <CompanyLogo url={lastLogo} className="login-logo" />
       <h1>{t("login.title")}</h1>
       <p>{t("login.subtitle")}</p>

@@ -17,8 +17,10 @@
   font-family: "Segoe UI", "Noto Sans Arabic", system-ui, Tahoma, sans-serif;
 }
 
+/* Dark follows the device unless the user picked Light or Dark (lib/theme.ts sets
+   data-theme on <html>; the inline script in index.html sets it before first paint). */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --color-bg: #111318;
     --color-surface: #1a1c23;
     --color-border: #2c2f38;
@@ -28,6 +30,23 @@
     --color-danger: #f87171;
     --color-success: #4ade80;
   }
+}
+
+:root[data-theme="dark"] {
+  --color-bg: #111318;
+  --color-surface: #1a1c23;
+  --color-border: #2c2f38;
+  --color-text: #e5e7eb;
+  --color-text-muted: #9ca3af;
+  --color-primary: #60a5fa;
+  --color-danger: #f87171;
+  --color-success: #4ade80;
+
+  color-scheme: dark;
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
 * {
@@ -844,6 +863,33 @@ textarea.shipment-form__field {
   border-color: var(--color-primary);
   color: var(--color-primary);
   font-weight: 600;
+}
+
+/* Language and theme switchers side by side at the top of each screen. */
+.top-controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.top-controls .lang-switcher {
+  margin-bottom: 0;
+}
+
+.theme-switcher {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.theme-switcher__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
 }
 
 /* Success toast (components/Toast.tsx), floating just above the fixed 56px
