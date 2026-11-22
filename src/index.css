@@ -151,6 +151,13 @@ input {
   max-width: 280px;
 }
 
+.change-password__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9rem;
+}
+
 .settings-links {
   display: flex;
   flex-direction: column;

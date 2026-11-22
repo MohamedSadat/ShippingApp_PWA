@@ -7,6 +7,7 @@ import { ScanDelivery } from "./pages/ScanDelivery";
 import { CodCollection } from "./pages/CodCollection";
 import { Settings } from "../shared/pages/Settings";
 import { Notifications } from "../shared/pages/Notifications";
+import { ChangePassword } from "../shared/pages/ChangePassword";
 
 export function agentRoutes() {
   return (
@@ -18,6 +19,7 @@ export function agentRoutes() {
         <Route path="/agent/cod" element={<CodCollection />} />
         <Route path="/agent/settings" element={<Settings />} />
         <Route path="/agent/settings/notifications" element={<Notifications />} />
+        <Route path="/agent/settings/password" element={<ChangePassword />} />
       </Route>
     </Route>
   );

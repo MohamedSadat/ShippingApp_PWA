@@ -21,8 +21,9 @@ export function Settings() {
         <p className="card__placeholder">{t("theme.title")}</p>
         <ThemeSwitcher labels />
       </div>
-      <div className="card">
+      <div className="card settings-links">
         <Link to={`${settingsPath}/notifications`}>{t("settings.notifications")}</Link>
+        <Link to={`${settingsPath}/password`}>{t("settings.changePassword")}</Link>
       </div>
       <div className="card settings-links">
         <a href={PORTAL_URL} target="_blank" rel="noopener noreferrer">

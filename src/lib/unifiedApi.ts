@@ -836,6 +836,21 @@ export async function getAgentCodOrders(
   return response.json();
 }
 
+// Changes the signed-in user's own password (LoginController.ChangePassword). A wrong
+// current password or a new one the server's rules refuse comes back 400 with { message },
+// thrown here; the API key stays valid, so the session continues after a change.
+export async function changePassword(apiKey: string, currentPassword: string, newPassword: string): Promise<void> {
+  const response = await authFetch(apiKey, `${API_BASE_URL}/api/Login/ChangePassword`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ currentPassword, newPassword }),
+  });
+
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response, `ChangePassword failed with status ${response.status}`));
+  }
+}
+
 // PushController — see memory/project_unifiedapi_auth.md for the X-Api-Key pattern.
 
 export async function getPushPublicKey(apiKey: string): Promise<string> {

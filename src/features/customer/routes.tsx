@@ -10,6 +10,7 @@ import { MyAccount } from "./pages/MyAccount";
 import { TrackShipment } from "./pages/TrackShipment";
 import { Settings } from "../shared/pages/Settings";
 import { Notifications } from "../shared/pages/Notifications";
+import { ChangePassword } from "../shared/pages/ChangePassword";
 
 export function customerRoutes() {
   return (
@@ -24,6 +25,7 @@ export function customerRoutes() {
         <Route path="/customer/account" element={<MyAccount />} />
         <Route path="/customer/settings" element={<Settings />} />
         <Route path="/customer/settings/notifications" element={<Notifications />} />
+        <Route path="/customer/settings/password" element={<ChangePassword />} />
       </Route>
     </Route>
   );
