@@ -9,7 +9,7 @@ import { changePassword } from "../../../lib/unifiedApi";
 // when it refuses, so only empty fields and a confirm mismatch are checked here.
 export function ChangePassword() {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { user, signIn } = useAuth();
   const { showToast } = useToast();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -33,7 +33,9 @@ export function ChangePassword() {
     setError(null);
     setSubmitting(true);
     try {
-      await changePassword(user.apiKey, currentPassword, newPassword);
+      const sessionStamp = await changePassword(user.apiKey, currentPassword, newPassword);
+      // The change signed this user out everywhere else; this session carries on with the new stamp.
+      if (sessionStamp) signIn({ ...user, sessionStamp });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");

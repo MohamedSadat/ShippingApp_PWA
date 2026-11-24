@@ -88,6 +88,7 @@ export function LoginPage() {
       partnerAccountId: result.partnerAccountId,
       roles: result.roles,
       role,
+      sessionStamp: result.sessionStamp ?? null,
     });
   }
 

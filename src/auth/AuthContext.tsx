@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { setUnauthorizedHandler, type UserType } from "../lib/unifiedApi";
+import { setSessionStamp, setUnauthorizedHandler, type UserType } from "../lib/unifiedApi";
 import { rememberCompanyLogo } from "./lastCompanyLogo";
 import { roleForUserType, type Role } from "./roles";
 
@@ -14,6 +14,8 @@ export interface AuthUser {
   partnerAccountId: string | null;
   roles: string[];
   role: Role;
+  /** UnifiedAPI's session stamp, sent on every request; absent from sessions saved before it. */
+  sessionStamp?: string | null;
 }
 
 interface AuthContextValue {
@@ -47,16 +49,23 @@ function loadStoredUser(): AuthUser | null {
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(loadStoredUser);
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    const stored = loadStoredUser();
+    setSessionStamp(stored?.sessionStamp);
+    return stored;
+  });
   const [sessionExpired, setSessionExpired] = useState(false);
 
   // Any authenticated API call answering 401 means the stored key is no longer
-  // valid, so drop the session. Only when the rejected key is still the stored
-  // one — a late response for a previous session must not sign out a fresh login.
+  // valid, so drop the session. Only when the rejected key and stamp are still
+  // the stored ones — a late response for a previous session, or for the stamp a
+  // password change just replaced, must not sign out the current one.
   useEffect(() => {
-    setUnauthorizedHandler((rejectedKey) => {
-      if (loadStoredUser()?.apiKey !== rejectedKey) return;
+    setUnauthorizedHandler((rejectedKey, rejectedStamp) => {
+      const stored = loadStoredUser();
+      if (stored?.apiKey !== rejectedKey || (stored.sessionStamp ?? null) !== rejectedStamp) return;
       localStorage.removeItem(STORAGE_KEY);
+      setSessionStamp(null);
       setUser(null);
       setSessionExpired(true);
     });
@@ -69,12 +78,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       sessionExpired,
       signIn: (nextUser) => {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(nextUser));
+        setSessionStamp(nextUser.sessionStamp);
         rememberCompanyLogo(nextUser.companyLogoUrl);
         setUser(nextUser);
         setSessionExpired(false);
       },
       signOut: () => {
         localStorage.removeItem(STORAGE_KEY);
+        setSessionStamp(null);
         setUser(null);
       },
     }),

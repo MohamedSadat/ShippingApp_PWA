@@ -15,13 +15,23 @@ export const UserType = {
 
 export type UserType = (typeof UserType)[keyof typeof UserType];
 
-// Registered by AuthProvider. Called with the rejected key whenever an
-// authenticated request comes back 401 — the key was deactivated or has
-// expired server-side, so the stored session is dead.
-let unauthorizedHandler: ((apiKey: string) => void) | null = null;
+// Registered by AuthProvider. Called with the rejected key and the session stamp
+// the request carried whenever an authenticated request comes back 401 — the key
+// was deactivated or has expired server-side, or the user was signed out from the
+// ERP (Force logout), so the stored session is dead.
+let unauthorizedHandler: ((apiKey: string, sessionStamp: string | null) => void) | null = null;
 
-export function setUnauthorizedHandler(handler: ((apiKey: string) => void) | null) {
+export function setUnauthorizedHandler(handler: ((apiKey: string, sessionStamp: string | null) => void) | null) {
   unauthorizedHandler = handler;
+}
+
+// The session stamp from the login result (UnifiedAPI's Services/SessionStamps.cs),
+// set by AuthProvider. Sent with the key so the ERP can sign this session out:
+// once it is no longer the user's, every request carrying it gets a 401.
+let sessionStamp: string | null = null;
+
+export function setSessionStamp(stamp: string | null | undefined) {
+  sessionStamp = stamp || null;
 }
 
 // fetch for every endpoint behind UnifiedAPI's ApiKey scheme: attaches the
@@ -31,9 +41,11 @@ export function setUnauthorizedHandler(handler: ((apiKey: string) => void) | nul
 async function authFetch(apiKey: string, url: string, init: RequestInit = {}): Promise<Response> {
   const headers = new Headers(init.headers);
   headers.set("X-Api-Key", apiKey);
+  const stamp = sessionStamp;
+  if (stamp) headers.set("X-Session-Stamp", stamp);
   const response = await fetch(url, { ...init, headers });
   if (response.status === 401) {
-    unauthorizedHandler?.(apiKey);
+    unauthorizedHandler?.(apiKey, stamp);
   }
   return response;
 }
@@ -80,6 +92,8 @@ export interface LoginResult {
   partnerAccountId: string | null;
   userType: UserType;
   roles: string[];
+  /** Sent back as X-Session-Stamp; absent from an API that predates it. */
+  sessionStamp?: string | null;
 }
 
 export async function login(request: LoginRequest): Promise<LoginResult> {
@@ -841,7 +855,9 @@ export async function getAgentCodOrders(
 // Changes the signed-in user's own password (LoginController.ChangePassword). A wrong
 // current password or a new one the server's rules refuse comes back 400 with { message },
 // thrown here; the API key stays valid, so the session continues after a change.
-export async function changePassword(apiKey: string, currentPassword: string, newPassword: string): Promise<void> {
+// Resolves to the session's new stamp: the change signs the user out everywhere
+// else, and this session carries on with it (null from an API that predates it).
+export async function changePassword(apiKey: string, currentPassword: string, newPassword: string): Promise<string | null> {
   const response = await authFetch(apiKey, `${API_BASE_URL}/api/Login/ChangePassword`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -851,6 +867,8 @@ export async function changePassword(apiKey: string, currentPassword: string, ne
   if (!response.ok) {
     throw new Error(await readErrorMessage(response, `ChangePassword failed with status ${response.status}`));
   }
+  const body = (await response.json().catch(() => null)) as { sessionStamp?: string | null } | null;
+  return body?.sessionStamp ?? null;
 }
 
 // PushController — see memory/project_unifiedapi_auth.md for the X-Api-Key pattern.
