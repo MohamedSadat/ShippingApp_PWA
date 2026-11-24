@@ -8,6 +8,11 @@ export default defineConfig({
   // ERPClient_React: one React copy, and no dev-server pre-bundling of it.
   resolve: { dedupe: ["react", "react-dom"] },
   optimizeDeps: { exclude: ["@cashgear/ui"] },
+  // Sent in X-Client-App at login (src/lib/clientApp.ts) so the API's login
+  // log says which build signed in. GitHub Actions sets GITHUB_SHA for the deploy.
+  define: {
+    __APP_BUILD__: JSON.stringify((process.env.GITHUB_SHA ?? "local").slice(0, 7)),
+  },
   plugins: [
     react(),
     VitePWA({

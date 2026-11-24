@@ -1,3 +1,5 @@
+import { CLIENT_APP_HEADER, clientAppValue } from "./clientApp";
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 // Fixed organization whose active companies populate the login dropdown.
@@ -83,7 +85,7 @@ export interface LoginResult {
 export async function login(request: LoginRequest): Promise<LoginResult> {
   const response = await fetch(`${API_BASE_URL}/api/Login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", [CLIENT_APP_HEADER]: clientAppValue() },
     body: JSON.stringify({
       userName: request.userName,
       password: request.password,
@@ -106,7 +108,7 @@ export async function login(request: LoginRequest): Promise<LoginResult> {
 export async function loginByKey(apiKey: string): Promise<LoginResult> {
   const response = await fetch(`${API_BASE_URL}/api/Login/LogInByKey`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", [CLIENT_APP_HEADER]: clientAppValue() },
     body: JSON.stringify({ apiKey }),
   });
 

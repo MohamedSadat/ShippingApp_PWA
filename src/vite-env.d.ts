@@ -8,3 +8,6 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+/** The commit this build was made from, or "local" (vite.config.ts `define`). */
+declare const __APP_BUILD__: string;
