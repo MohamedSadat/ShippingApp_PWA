@@ -187,6 +187,7 @@ export const ar: TranslationSchema = {
     androidApp: "تطبيق أندرويد على Google Play",
     signOut: "تسجيل الخروج",
     changePassword: "تغيير كلمة المرور",
+    version: "الإصدار {{version}} (البناء {{build}})",
   },
   changePassword: {
     title: "تغيير كلمة المرور",

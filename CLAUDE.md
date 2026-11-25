@@ -16,6 +16,11 @@ This is a browser-installable PWA, not a native app. It replaces what would othe
 - Mobile-first CSS — design for phone width first, scale up for desktop/tablet
 - Deployed as a PWA: web app manifest + service worker for installability and offline app-shell caching
 
+## Versioning
+
+- `package.json`'s `version` is the app version, shown on the Settings page (`__APP_VERSION__`, defined in `vite.config.ts`, next to the `__APP_BUILD__` commit hash)
+- **Bump it in every commit**: `npm version patch --no-git-tag-version` (updates `package.json` and `package-lock.json`); minor/major only when deliberately cutting a bigger release
+
 ## Architecture
 
 - **Role-gated routing**, same pattern as CGBoard's `NAV_ACCESS` config — one app, two role-based view sets, gated off the authenticated user's role rather than separate apps/deployments

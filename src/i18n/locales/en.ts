@@ -185,6 +185,7 @@ export const en = {
     androidApp: "Android app on Google Play",
     signOut: "Sign out",
     changePassword: "Change password",
+    version: "Version {{version}} (build {{build}})",
   },
   changePassword: {
     title: "Change password",

@@ -38,6 +38,9 @@ export function Settings() {
           {t("settings.signOut")}
         </button>
       </div>
+      <p className="settings-version">
+        {t("settings.version", { version: __APP_VERSION__, build: __APP_BUILD__ })}
+      </p>
     </section>
   );
 }

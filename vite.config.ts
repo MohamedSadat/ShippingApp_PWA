@@ -1,6 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { readFileSync } from "node:fs";
+
+const pkg = JSON.parse(readFileSync(new URL("./package.json", import.meta.url), "utf8")) as {
+  version: string;
+};
 
 export default defineConfig({
   base: "/",
@@ -10,7 +15,10 @@ export default defineConfig({
   optimizeDeps: { exclude: ["@cashgear/ui"] },
   // Sent in X-Client-App at login (src/lib/clientApp.ts) so the API's login
   // log says which build signed in. GitHub Actions sets GITHUB_SHA for the deploy.
+  // __APP_VERSION__ is package.json's version, shown on Settings; bump it in
+  // every commit.
   define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
     __APP_BUILD__: JSON.stringify((process.env.GITHUB_SHA ?? "local").slice(0, 7)),
   },
   plugins: [
