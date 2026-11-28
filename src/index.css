@@ -188,16 +188,173 @@ a:visited {
 }
 
 .settings-signout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   width: 100%;
+  margin-top: 16px;
   padding: 12px;
   border: 1px solid var(--color-danger);
-  border-radius: 6px;
+  border-radius: 8px;
   background: transparent;
   color: var(--color-danger);
+  font-weight: 600;
+}
+
+.signout-confirm .settings-signout {
+  margin-top: 0;
+}
+
+.settings-signout--danger {
+  background: var(--color-danger);
+  color: #fff;
+}
+
+.signout-confirm__title {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.signout-confirm__buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.account-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-card__avatar {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary) 15%, transparent);
+  color: var(--color-primary);
+}
+
+.account-card__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.account-card__role {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.sync-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sync-card--pending {
+  border-color: color-mix(in srgb, var(--color-warning) 55%, var(--color-border));
+}
+
+.sync-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sync-card__text span {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.settings-section {
+  margin-top: 20px;
+}
+
+.settings-section__title {
+  margin: 0 0 6px;
+  padding: 0 4px;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.settings-list {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+/* Native-style list row: icon, label, trailing chevron. */
+.settings-row,
+.settings-row:visited {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 10px 14px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.settings-row + .settings-row {
+  border-top: 1px solid var(--color-border);
+}
+
+.settings-row__icon {
+  flex: none;
+  color: var(--color-primary);
+}
+
+.settings-row__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.settings-row__detail {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.settings-row__end {
+  flex: none;
+  color: var(--color-text-muted);
+}
+
+.settings-row--control .lang-switcher {
+  margin: 0;
+}
+
+.settings-row--stacked {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.settings-row__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settings-row--info .settings-row__detail {
+  line-height: 1.4;
 }
 
 .settings-version {
-  margin: 0;
+  margin: 16px 0 0;
   color: var(--color-text-muted);
   font-size: 0.8rem;
   text-align: center;
