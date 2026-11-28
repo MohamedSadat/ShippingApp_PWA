@@ -43,8 +43,7 @@ export const NAV_ACCESS: Record<Role, NavItem[]> = {
   ],
   agent: [
     { path: "/agent", labelKey: "nav.manifest", icon: "list", end: true },
-    { path: "/agent/scan/pickup", labelKey: "nav.pickupScan", icon: "scan" },
-    { path: "/agent/scan/delivery", labelKey: "nav.deliveryScan", icon: "truck" },
+    { path: "/agent/scan", labelKey: "nav.scan", icon: "scan" },
     { path: "/agent/cod", labelKey: "nav.cod", icon: "wallet" },
     { path: "/agent/settings", labelKey: "nav.settings", icon: "settings" },
   ],

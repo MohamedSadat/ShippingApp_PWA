@@ -13,6 +13,13 @@ export interface ScanEvent {
   synced: boolean;
 }
 
+/** Fired on window whenever the queue changes (scan added, sent, removed). */
+export const SCAN_QUEUE_EVENT = "scanqueuechange";
+
+function notifyChange() {
+  window.dispatchEvent(new Event(SCAN_QUEUE_EVENT));
+}
+
 function openDb(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -47,11 +54,12 @@ function getCurrentPositionSafe(): Promise<GeolocationPosition | null> {
   });
 }
 
+/** Queues a scan; resolves to its queue id (for removing it before it's sent). */
 export async function recordScan(
   type: ScanEvent["type"],
   waybillId: string,
   podPhoto?: Blob,
-): Promise<void> {
+): Promise<number> {
   const position = await getCurrentPositionSafe();
   const event: ScanEvent = {
     type,
@@ -64,12 +72,34 @@ export async function recordScan(
   };
 
   const db = await openDb();
+  const id = await new Promise<number>((resolve, reject) => {
+    const tx = db.transaction(STORE_NAME, "readwrite");
+    const request = tx.objectStore(STORE_NAME).add(event);
+    tx.oncomplete = () => resolve(request.result as number);
+    tx.onerror = () => reject(tx.error);
+  });
+  notifyChange();
+  return id;
+}
+
+/** Drops a scan that hasn't been sent yet (the courier undid it). */
+export async function removeQueuedScan(id: number): Promise<void> {
+  const db = await openDb();
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STORE_NAME, "readwrite");
-    tx.objectStore(STORE_NAME).add(event);
+    tx.objectStore(STORE_NAME).delete(id);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
+  notifyChange();
+}
+
+/**
+ * Scans still waiting to reach the server. Only pickups count: delivery scans are a
+ * local log with no ingest endpoint yet, so they would never leave this number.
+ */
+export async function getUnsentPickups(): Promise<ScanEvent[]> {
+  return (await getPendingScans()).filter((e) => e.type === "pickup");
 }
 
 export async function getPendingScans(): Promise<ScanEvent[]> {
@@ -122,5 +152,6 @@ export async function flushScanQueue(
     }
   }
 
+  if (succeeded > 0) notifyChange();
   return { succeeded, failed };
 }

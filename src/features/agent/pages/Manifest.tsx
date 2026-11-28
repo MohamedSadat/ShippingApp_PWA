@@ -192,7 +192,7 @@ export function Manifest() {
                 <li
                   key={order.orderId}
                   className="order-list__item order-list__item--clickable stop-card"
-                  onClick={() => navigate(`/agent/scan/delivery?waybill=${encodeURIComponent(order.orderId)}`)}
+                  onClick={() => navigate(`/agent/scan?mode=delivery&waybill=${encodeURIComponent(order.orderId)}`)}
                 >
                   <div className="stop-card__top">
                     <span className="order-list__id">{order.orderId}</span>

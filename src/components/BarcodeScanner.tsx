@@ -6,15 +6,23 @@ import "./BarcodeScanner.css";
 interface BarcodeScannerProps {
   onDetected: (text: string) => void;
   onClose: () => void;
+  /** Keep scanning after a detection (batch pickups); the caller ignores repeats. */
+  continuous?: boolean;
+  /** Label for the close button; "Cancel" by default. */
+  closeLabel?: string;
 }
+
+/** In continuous mode, how long to wait after a detection before looking again. */
+const CONTINUOUS_PAUSE_MS = 1200;
 
 type ScannerError = "permissionDenied" | "noCamera" | "genericError";
 
-export function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
+export function BarcodeScanner({ onDetected, onClose, continuous = false, closeLabel }: BarcodeScannerProps) {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
   const onDetectedRef = useRef(onDetected);
   onDetectedRef.current = onDetected;
+  const continuousRef = useRef(continuous);
   const [error, setError] = useState<ScannerError | null>(null);
 
   useEffect(() => {
@@ -56,7 +64,8 @@ export function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
             const barcodes = await detector.detect(video);
             if (barcodes.length > 0 && !cancelled) {
               onDetectedRef.current(barcodes[0].rawValue);
-              return;
+              if (!continuousRef.current) return;
+              await new Promise((resume) => setTimeout(resume, CONTINUOUS_PAUSE_MS));
             }
           } catch {
             // transient decode errors are expected between frames; keep polling
@@ -92,10 +101,19 @@ export function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
       {error ? (
         <p className="barcode-scanner__error">{t(`barcodeScanner.${error}`)}</p>
       ) : (
-        <video ref={videoRef} className="barcode-scanner__video" muted playsInline autoPlay />
+        <div className="barcode-scanner__frame">
+          <video
+            ref={videoRef}
+            className={`barcode-scanner__video${continuous ? " barcode-scanner__video--short" : ""}`}
+            muted
+            playsInline
+            autoPlay
+          />
+          <span className="barcode-scanner__target" aria-hidden="true" />
+        </div>
       )}
       <button type="button" className="barcode-scanner__cancel" onClick={onClose}>
-        {t("barcodeScanner.cancel")}
+        {closeLabel ?? t("barcodeScanner.cancel")}
       </button>
     </div>
   );

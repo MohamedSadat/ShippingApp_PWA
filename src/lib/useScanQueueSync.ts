@@ -1,10 +1,12 @@
-import { useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
-import { flushScanQueue, type ScanEvent } from "./scanQueue";
+import { flushScanQueue, getUnsentPickups, SCAN_QUEUE_EVENT, type ScanEvent } from "./scanQueue";
 import { ApiStatusError, scanPickup } from "./unifiedApi";
 
 /** Statuses a later retry can fix: not signed in, timed out, rate limited. */
 const RETRYABLE = new Set([401, 408, 429]);
+
+const LAST_SYNC_KEY = "shippingapp.lastScanSync";
 
 /**
  * Sends a pickup scan made offline. A scan the server refuses (wrong merchant, no open
@@ -24,6 +26,26 @@ async function sendScanEvent(apiKey: string, event: ScanEvent): Promise<void> {
   }
 }
 
+/** Sends what's queued now (the Settings "Sync now" button and the automatic triggers). */
+export async function syncScanQueue(apiKey: string): Promise<{ succeeded: number; failed: number }> {
+  const result = await flushScanQueue((event) => sendScanEvent(apiKey, event));
+  try {
+    localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+  } catch {
+    // Only the "last synced" label depends on this.
+  }
+  window.dispatchEvent(new Event(SCAN_QUEUE_EVENT));
+  return result;
+}
+
+export function lastScanSync(): string | null {
+  try {
+    return localStorage.getItem(LAST_SYNC_KEY);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Triggers a queue flush on app-foreground and online events.
  * There is no silent background flush on iOS Safari (no Background
@@ -36,7 +58,7 @@ export function useScanQueueSync(): void {
   useEffect(() => {
     if (!apiKey) return;
     const flush = () => {
-      void flushScanQueue((event) => sendScanEvent(apiKey, event));
+      void syncScanQueue(apiKey);
     };
 
     const onVisibility = () => {
@@ -52,4 +74,20 @@ export function useScanQueueSync(): void {
       document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [apiKey]);
+}
+
+/** Pickups waiting to be sent, kept current as the queue changes; null until first read. */
+export function useUnsentPickups(): ScanEvent[] | null {
+  const [pending, setPending] = useState<ScanEvent[] | null>(null);
+  const refresh = useCallback(() => {
+    getUnsentPickups()
+      .then(setPending)
+      .catch(() => setPending([]));
+  }, []);
+  useEffect(() => {
+    refresh();
+    window.addEventListener(SCAN_QUEUE_EVENT, refresh);
+    return () => window.removeEventListener(SCAN_QUEUE_EVENT, refresh);
+  }, [refresh]);
+  return pending;
 }
