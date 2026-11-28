@@ -8,6 +8,9 @@ import "@cashgear/ui/styles.css";
 import { useIsDark } from "../../../lib/theme";
 import type { ShipOrderDto } from "../../../lib/unifiedApi";
 import { governorateName } from "../shipmentFields";
+import { StatusChip } from "../../../components/StatusChip";
+import { formatDate } from "../../../lib/formatDate";
+import { formatMoney } from "../../../lib/money";
 
 // The app themes off the device setting or the user's Light/Dark pick (lib/theme.ts);
 // @cashgear/ui only goes dark under a data-cg-theme="dark" ancestor, so mirror it onto it.
@@ -37,7 +40,21 @@ export default function ShipmentGrid({ orders, pageSize, onSelectionChange, aria
         width: 130,
         renderCell: ({ item }) => <Link to={`/customer/shipments/${item.orderId}`}>{item.orderId}</Link>,
       },
-      { type: "text", fieldId: "orderStatus", title: t("shipmentGrid.status"), accessor: (order) => order.orderStatus, width: 110 },
+      {
+        type: "text",
+        fieldId: "orderStatus",
+        title: t("shipmentGrid.status"),
+        accessor: (order) => order.orderStatus,
+        width: 150,
+        renderCell: ({ item }) => <StatusChip status={item.orderStatus} />,
+      },
+      {
+        type: "text",
+        fieldId: "orderDate",
+        title: t("shipmentGrid.date"),
+        accessor: (order) => (order.orderDate ? formatDate(order.orderDate) : ""),
+        width: 110,
+      },
       {
         type: "text",
         fieldId: "contactName",
@@ -47,7 +64,7 @@ export default function ShipmentGrid({ orders, pageSize, onSelectionChange, aria
         // Two lines — contact name over governorate — to keep the grid narrow on a phone.
         renderCell: ({ item }) => (
           <span className="shipment-grid__lines">
-            <span>{item.contactName}</span>
+            <span dir="auto">{item.contactName}</span>
             <span className="shipment-grid__secondary">{governorateName(item, language)}</span>
           </span>
         ),
@@ -57,9 +74,9 @@ export default function ShipmentGrid({ orders, pageSize, onSelectionChange, aria
         fieldId: "codAmount",
         title: t("shipmentGrid.cod"),
         accessor: (order) => order.codAmount,
-        format: (value) => (value ?? 0).toFixed(2),
+        format: (value) => formatMoney(value ?? 0, language),
         alignment: "end",
-        width: 100,
+        width: 130,
       },
     ],
     [t, language],
