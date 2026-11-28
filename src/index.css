@@ -461,9 +461,109 @@ a:visited {
 }
 
 .cod-summary {
-  margin: 12px 0 0;
+  margin: 0;
   color: var(--color-text-muted);
   font-size: 0.9rem;
+}
+
+.cod-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* A small text button with a leading icon (Share, Refresh). */
+.icon-text-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Balance card: label, a big amount with its لك / عليك chip, then how it adds up. */
+.balance-card__label {
+  margin: 0 0 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.balance-card__amount {
+  font-size: 1.75rem;
+  font-weight: 700;
+}
+
+.breakdown {
+  margin: 12px 0 0;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+  font-size: 0.9rem;
+}
+
+.breakdown__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 0;
+}
+
+.breakdown__row dt {
+  color: var(--color-text-muted);
+}
+
+.breakdown__row dd {
+  margin: 0;
+}
+
+.breakdown__row--total {
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--color-border);
+  font-weight: 700;
+}
+
+.breakdown__row--total dt {
+  color: var(--color-text);
+}
+
+/* Per-shipment COD math: 1,200.00 − 65.00 fee = 1,135.00 عليك */
+.cod-math {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--color-border);
+}
+
+.cod-math__label {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.cod-math__sum {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.cod-math__terms {
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
 }
 
 .cod-amount {
