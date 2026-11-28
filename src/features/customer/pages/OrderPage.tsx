@@ -7,6 +7,7 @@ import { ApiStatusError, getOrder, type ShipOrderDto } from "../../../lib/unifie
 import { formatDate } from "../../../lib/formatDate";
 import { EditShipmentForm } from "../components/EditShipmentForm";
 import { governorateName } from "../shipmentFields";
+import { Amount } from "../../../components/Amount";
 
 export function OrderPage() {
   const { user } = useAuth();
@@ -166,11 +167,11 @@ export function OrderPage() {
             <h2 className="order-detail__section-title">{t("orderPage.charges")}</h2>
             <div className="order-list__row">
               <span>{t("orderPage.codAmount")}</span>
-              <span>{order.codAmount.toFixed(2)}</span>
+              <Amount value={order.codAmount} />
             </div>
             <div className="order-list__row">
               <span>{t("orderPage.freightAmount")}</span>
-              <span>{order.freightAmount.toFixed(2)}</span>
+              <Amount value={order.freightAmount} />
             </div>
           </div>
         </>

@@ -7,6 +7,17 @@
   --color-primary: #2563eb;
   --color-danger: #dc2626;
   --color-success: #16a34a;
+  --color-warning: #b45309;
+  /* Filled buttons and active segments: #2563eb keeps white text above 4.5:1 in every theme. */
+  --color-primary-fill: #2563eb;
+  --color-on-primary: #ffffff;
+  /* Status tones (StatusChip, dashboard tiles): text colour; chips tint their own background. */
+  --tone-grey: #4b5563;
+  --tone-amber: #b45309;
+  --tone-blue: #1d4ed8;
+  --tone-indigo: #6d28d9;
+  --tone-green: #15803d;
+  --tone-red: #b91c1c;
 
   color-scheme: light dark;
   font: 16px/1.45 system-ui, "Segoe UI", Roboto, sans-serif;
@@ -29,6 +40,13 @@
     --color-primary: #60a5fa;
     --color-danger: #f87171;
     --color-success: #4ade80;
+    --color-warning: #fbbf24;
+    --tone-grey: #9ca3af;
+    --tone-amber: #fbbf24;
+    --tone-blue: #60a5fa;
+    --tone-indigo: #a78bfa;
+    --tone-green: #4ade80;
+    --tone-red: #f87171;
   }
 }
 
@@ -41,6 +59,13 @@
   --color-primary: #60a5fa;
   --color-danger: #f87171;
   --color-success: #4ade80;
+  --color-warning: #fbbf24;
+  --tone-grey: #9ca3af;
+  --tone-amber: #fbbf24;
+  --tone-blue: #60a5fa;
+  --tone-indigo: #a78bfa;
+  --tone-green: #4ade80;
+  --tone-red: #f87171;
 
   color-scheme: dark;
 }
@@ -70,6 +95,44 @@ button {
 
 input {
   font: inherit;
+}
+
+/* One link colour, visited or not (no browser-default purple). */
+a,
+a:visited {
+  color: var(--color-primary);
+}
+
+/* Amounts stay left to right inside Arabic text: the minus sign and decimals keep their place. */
+.amount {
+  direction: ltr;
+  unicode-bidi: isolate;
+  white-space: nowrap;
+}
+
+.directed-amount {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.direction-chip {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.75em;
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.direction-chip--in {
+  color: var(--tone-green);
+  background: color-mix(in srgb, var(--tone-green) 15%, transparent);
+}
+
+.direction-chip--out {
+  color: var(--tone-red);
+  background: color-mix(in srgb, var(--tone-red) 15%, transparent);
 }
 
 /* Mobile-first app shell: content area + fixed bottom nav (agent/customer views) */
@@ -213,8 +276,8 @@ input {
 }
 
 .login-mode-toggle__btn--active {
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
 }
 
 .login-actions button,
@@ -223,8 +286,8 @@ input {
   padding: 12px;
   border: none;
   border-radius: 6px;
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
@@ -294,8 +357,8 @@ input {
   padding: 12px;
   border: none;
   border-radius: 6px;
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
@@ -393,8 +456,8 @@ input {
 }
 
 .segmented__btn--active {
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
 }
 
 .cod-summary {
@@ -450,8 +513,8 @@ textarea.shipment-form__field {
   padding: 12px;
   border: none;
   border-radius: 6px;
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
@@ -508,8 +571,8 @@ textarea.shipment-form__field {
 }
 
 .dash-period__option--active {
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
@@ -539,8 +602,8 @@ textarea.shipment-form__field {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
 }
 
 .dash-card__label {
@@ -713,10 +776,10 @@ textarea.shipment-form__field {
 
 .shipment-toolbar button {
   padding: 8px 16px;
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-primary-fill);
   border-radius: 6px;
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 
@@ -801,8 +864,8 @@ textarea.shipment-form__field {
   margin-bottom: 12px;
   border: none;
   border-radius: 6px;
-  background: var(--color-primary);
-  color: #fff;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
   font-weight: 600;
 }
 

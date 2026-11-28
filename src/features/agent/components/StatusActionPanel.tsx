@@ -8,6 +8,7 @@ import {
   type WorkflowInput,
 } from "../../../lib/unifiedApi";
 import { settlementKind } from "../settlement";
+import { moneyText } from "../../../lib/money";
 
 interface StatusActionPanelProps {
   action: WorkflowAction;
@@ -32,7 +33,7 @@ export function StatusActionPanel({
   onSubmit,
   onCancel,
 }: StatusActionPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const id = useId();
   const kind = settlementKind(action.transactionId);
@@ -90,7 +91,7 @@ export function StatusActionPanel({
       return null;
     }
     if (amountMax !== null && value > amountMax) {
-      setError(t("scanDelivery.amountTooHigh", { max: amountMax.toFixed(2) }));
+      setError(t("scanDelivery.amountTooHigh", { max: moneyText(amountMax, i18n.language) }));
       return null;
     }
     return value;
@@ -116,7 +117,7 @@ export function StatusActionPanel({
 
       {kind === "deliver" && (
         <p className="action-panel__note">
-          {t("scanDelivery.collectFull", { amount: codAmount !== null ? codAmount.toFixed(2) : "—" })}
+          {t("scanDelivery.collectFull", { amount: codAmount !== null ? moneyText(codAmount, i18n.language) : "—" })}
         </p>
       )}
       {kind === "failed" && <p className="action-panel__note">{t("scanDelivery.nothingCollected")}</p>}
@@ -137,7 +138,7 @@ export function StatusActionPanel({
             required={kind !== "failedPay"}
           />
           {amountMax !== null && (
-            <small className="action-panel__hint">{t("scanDelivery.amountMax", { max: amountMax.toFixed(2) })}</small>
+            <small className="action-panel__hint">{t("scanDelivery.amountMax", { max: moneyText(amountMax, i18n.language) })}</small>
           )}
         </label>
       )}

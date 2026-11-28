@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { ApiStatusError, getOrderHistory, type ShipHistoryRow } from "../../../lib/unifiedApi";
 import { formatDateTime } from "../../../lib/formatDate";
+import { Amount } from "../../../components/Amount";
 
 /**
  * A shipment's status history, oldest first: the web app's ShipOrderHistoryPage for a customer.
@@ -91,16 +92,21 @@ export function OrderHistoryPage() {
             {row.collected != null && (
               <div className="order-list__row order-history__amount">
                 <span>{t("orderHistory.collected")}</span>
-                <span dir="ltr">
-                  {row.collected.toFixed(2)}
-                  {row.codAmount != null && ` / ${row.codAmount.toFixed(2)}`}
+                <span>
+                  <Amount value={row.collected} />
+                  {row.codAmount != null && (
+                    <>
+                      {" / "}
+                      <Amount value={row.codAmount} />
+                    </>
+                  )}
                 </span>
               </div>
             )}
             {row.freight != null && (
               <div className="order-list__row order-history__amount">
                 <span>{t("orderPage.freightAmount")}</span>
-                <span dir="ltr">{row.freight.toFixed(2)}</span>
+                <Amount value={row.freight} />
               </div>
             )}
           </div>
