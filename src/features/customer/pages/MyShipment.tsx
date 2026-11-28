@@ -45,6 +45,8 @@ export function MyShipment() {
 
   const [orders, setOrders] = useState<ShipOrderDto[]>([]);
   const [totalCount, setTotalCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const [lastPageFull, setLastPageFull] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -60,8 +62,15 @@ export function MyShipment() {
       try {
         const fetchPage = segment === "active" ? getPartnerPendingOrders : getPartnerCompletedOrders;
         const result = await fetchPage(user.apiKey, page, PAGE_SIZE);
-        setOrders((current) => (page === 1 ? result.data : [...current, ...result.data]));
+        setOrders((current) => {
+          const previous = page === 1 ? [] : current;
+          const seen = new Set(previous.map((o) => o.orderId));
+          return [...previous, ...result.data.filter((o) => !seen.has(o.orderId))];
+        });
         setTotalCount(result.totalCount);
+        setPage(page);
+        // The server's totalCount can run ahead of the rows it returns, so a short page ends the list.
+        setLastPageFull(result.data.length === PAGE_SIZE);
       } catch {
         setError(t("common.networkError"));
       } finally {
@@ -211,9 +220,9 @@ export function MyShipment() {
           </div>
         ))}
 
-      {orders.length < totalCount && (
+      {lastPageFull && orders.length < totalCount && (
         <div className="order-list__pagination">
-          <button type="button" disabled={loading} onClick={() => void load(Math.floor(orders.length / PAGE_SIZE) + 1)}>
+          <button type="button" disabled={loading} onClick={() => void load(page + 1)}>
             {loading ? t("common.loading") : t("myShipment.loadMore", { shown: orders.length, total: totalCount })}
           </button>
         </div>

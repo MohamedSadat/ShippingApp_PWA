@@ -21,6 +21,9 @@ interface Snapshot {
   orders: ShipOrderDto[];
   totalCount: number;
   syncedAt: string;
+  /** The last page loaded, and whether it came back full (only then can there be another). */
+  page?: number;
+  hasMore?: boolean;
 }
 
 // The last list that loaded, so a courier who opens the app with no signal still sees their stops.
@@ -62,10 +65,16 @@ export function Manifest() {
       try {
         const result = await getPartnerPendingOrders(user.apiKey, page, PAGE_SIZE);
         setSnapshot((current) => {
+          const previous = page === 1 ? [] : (current?.orders ?? []);
+          const seen = new Set(previous.map((o) => o.orderId));
+          const orders = [...previous, ...result.data.filter((o) => !seen.has(o.orderId))];
           const next: Snapshot = {
-            orders: page === 1 ? result.data : [...(current?.orders ?? []), ...result.data],
+            orders,
             totalCount: result.totalCount,
             syncedAt: new Date().toISOString(),
+            page,
+            // The server's totalCount can run ahead of the rows it returns, so a short page ends the list.
+            hasMore: result.data.length === PAGE_SIZE && orders.length < result.totalCount,
           };
           writeSnapshot(user.userName, next);
           return next;
@@ -97,7 +106,7 @@ export function Manifest() {
   async function loadMore() {
     if (!snapshot) return;
     setLoadingMore(true);
-    await load(Math.floor(snapshot.orders.length / PAGE_SIZE) + 1);
+    await load((snapshot.page ?? 1) + 1);
     setLoadingMore(false);
   }
 
@@ -130,7 +139,9 @@ export function Manifest() {
   }, [orders, query, tone]);
 
   const agentName = cleanName(user?.name || user?.userName);
-  const totalCount = snapshot?.totalCount ?? 0;
+  const hasMore = snapshot?.hasMore ?? false;
+  // Count what's listed; the server total only while more pages are still to come.
+  const stopCount = hasMore ? (snapshot?.totalCount ?? 0) : orders.length;
 
   return (
     <section className="page">
@@ -145,7 +156,7 @@ export function Manifest() {
       {snapshot && (
         <div className="summary-strip" role="status">
           <span className="summary-strip__main">
-            {t("manifest.summary", { count: totalCount, amount: moneyText(codToCollect, lang) })}
+            {t("manifest.summary", { count: stopCount, amount: moneyText(codToCollect, lang) })}
           </span>
           <span className="summary-strip__meta">
             {t("manifest.updated", { time: formatDateTime(snapshot.syncedAt) })}
@@ -224,7 +235,7 @@ export function Manifest() {
               );
             })}
           </ul>
-          {!loading && orders.length < totalCount && (
+          {!loading && hasMore && (
             <div className="order-list__pagination">
               <button type="button" onClick={loadMore} disabled={loadingMore}>
                 {loadingMore ? t("common.loading") : t("cod.loadMore")}

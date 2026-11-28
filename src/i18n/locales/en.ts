@@ -384,7 +384,7 @@ export const en = {
     delivery: "Delivery",
     modeLabel: "Scan mode",
     manualLabel: "Waybill number (or use a barcode scanner)",
-    manualPlaceholder: "e.g. 26-00029",
+    manualPlaceholder: "26-00029",
   },
   scanPickup: {
     title: "Pickup scan",

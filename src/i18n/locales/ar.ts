@@ -386,7 +386,7 @@ export const ar: TranslationSchema = {
     delivery: "تسليم",
     modeLabel: "نوع المسح",
     manualLabel: "رقم البوليصة (أو استخدم قارئ الباركود)",
-    manualPlaceholder: "مثال 26-00029",
+    manualPlaceholder: "26-00029",
   },
   scanPickup: {
     title: "مسح الاستلام",

@@ -206,8 +206,10 @@ a:visited {
   margin-top: 0;
 }
 
+/* Fixed red: the dark theme's lighter danger red is too pale behind white text. */
 .settings-signout--danger {
-  background: var(--color-danger);
+  border-color: #dc2626;
+  background: #dc2626;
   color: #fff;
 }
 
