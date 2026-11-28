@@ -1,4 +1,5 @@
 import { UserType } from "../lib/unifiedApi";
+import type { IconName } from "../components/Icon";
 
 export type Role = "customer" | "agent";
 
@@ -19,8 +20,11 @@ export interface NavItem {
   path: string;
   /** i18next key for the nav label, resolved in NavBar via useTranslation */
   labelKey: string;
+  icon: IconName;
   /** relative to the role's base path, e.g. "" for index */
   end?: boolean;
+  /** The raised centre action (customer "+"): icon only, label kept for screen readers */
+  primary?: boolean;
 }
 
 /**
@@ -31,18 +35,18 @@ export interface NavItem {
  */
 export const NAV_ACCESS: Record<Role, NavItem[]> = {
   customer: [
-    { path: "/customer", labelKey: "nav.dashboard", end: true },
-    { path: "/customer/shipments", labelKey: "nav.myShipment" },
-    { path: "/customer/shipments/new", labelKey: "nav.addShipment" },
-    { path: "/customer/account", labelKey: "nav.myAccount" },
-    { path: "/customer/settings", labelKey: "nav.settings" },
+    { path: "/customer", labelKey: "nav.dashboard", icon: "home", end: true },
+    { path: "/customer/shipments", labelKey: "nav.myShipment", icon: "box", end: true },
+    { path: "/customer/shipments/new", labelKey: "nav.addShipment", icon: "plus", primary: true },
+    { path: "/customer/account", labelKey: "nav.myAccount", icon: "user" },
+    { path: "/customer/settings", labelKey: "nav.more", icon: "more" },
   ],
   agent: [
-    { path: "/agent", labelKey: "nav.manifest", end: true },
-    { path: "/agent/scan/pickup", labelKey: "nav.pickupScan" },
-    { path: "/agent/scan/delivery", labelKey: "nav.deliveryScan" },
-    { path: "/agent/cod", labelKey: "nav.cod" },
-    { path: "/agent/settings", labelKey: "nav.settings" },
+    { path: "/agent", labelKey: "nav.manifest", icon: "list", end: true },
+    { path: "/agent/scan/pickup", labelKey: "nav.pickupScan", icon: "scan" },
+    { path: "/agent/scan/delivery", labelKey: "nav.deliveryScan", icon: "truck" },
+    { path: "/agent/cod", labelKey: "nav.cod", icon: "wallet" },
+    { path: "/agent/settings", labelKey: "nav.settings", icon: "settings" },
   ],
 };
 

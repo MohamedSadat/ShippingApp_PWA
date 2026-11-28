@@ -53,9 +53,6 @@ export function Dashboard() {
     <section className="page">
       <div className="dash-header">
         <CompanyLogo url={user?.companyLogoUrl} alt={user?.company} className="company-logo" />
-        <Link to="/customer/settings" className="dash-header__settings" aria-label={t("nav.settings")} title={t("nav.settings")}>
-          <Icon name="settings" size={26} />
-        </Link>
       </div>
       <h1>{t("dashboard.title")}</h1>
       <p>{t("dashboard.welcome", { name: user?.userName })}</p>

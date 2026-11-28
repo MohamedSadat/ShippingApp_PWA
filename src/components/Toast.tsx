@@ -1,8 +1,10 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 
+export type ToastVariant = "success" | "error" | "notice";
+
 interface ToastContextValue {
-  /** Shows a short success message above the bottom nav; replaces any toast already showing. */
-  showToast: (message: string) => void;
+  /** Shows a short message above the bottom nav; replaces any toast already showing. */
+  showToast: (message: string, variant?: ToastVariant) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
@@ -12,9 +14,12 @@ const TOAST_DURATION_MS = 4000;
 // Mounted above the routes so a toast raised just before navigate() is still
 // showing on the page the user lands on.
 export function ToastProvider({ children }: { children: ReactNode }) {
-  const [toast, setToast] = useState<{ id: number; message: string } | null>(null);
+  const [toast, setToast] = useState<{ id: number; message: string; variant: ToastVariant } | null>(null);
 
-  const showToast = useCallback((message: string) => setToast({ id: Date.now(), message }), []);
+  const showToast = useCallback(
+    (message: string, variant: ToastVariant = "success") => setToast({ id: Date.now(), message, variant }),
+    [],
+  );
   const value = useMemo<ToastContextValue>(() => ({ showToast }), [showToast]);
 
   useEffect(() => {
@@ -29,7 +34,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {/* The live region stays mounted so screen readers announce each new message. */}
       <div className="toast-region" role="status" aria-live="polite">
         {toast && (
-          <div key={toast.id} className="toast" onClick={() => setToast(null)}>
+          <div key={toast.id} className={`toast toast--${toast.variant}`} onClick={() => setToast(null)}>
             {toast.message}
           </div>
         )}

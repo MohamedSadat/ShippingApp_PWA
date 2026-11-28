@@ -1,6 +1,7 @@
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { NAV_ACCESS, type Role } from "../auth/roles";
+import { Icon } from "./Icon";
 import "./NavBar.css";
 
 export function NavBar({ role }: { role: Role }) {
@@ -14,9 +15,21 @@ export function NavBar({ role }: { role: Role }) {
           key={item.path}
           to={item.path}
           end={item.end}
-          className={({ isActive }) => `nav-bar__link${isActive ? " nav-bar__link--active" : ""}`}
+          aria-label={item.primary ? t(item.labelKey) : undefined}
+          className={({ isActive }) =>
+            `nav-bar__link${item.primary ? " nav-bar__link--primary" : ""}${isActive ? " nav-bar__link--active" : ""}`
+          }
         >
-          {t(item.labelKey)}
+          {item.primary ? (
+            <span className="nav-bar__fab">
+              <Icon name={item.icon} size={26} />
+            </span>
+          ) : (
+            <>
+              <Icon name={item.icon} size={22} className="nav-bar__icon" />
+              <span className="nav-bar__label">{t(item.labelKey)}</span>
+            </>
+          )}
         </NavLink>
       ))}
     </nav>

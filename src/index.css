@@ -531,12 +531,6 @@ textarea.shipment-form__field {
   gap: 12px;
 }
 
-.dash-header__settings {
-  display: inline-flex;
-  padding: 8px;
-  color: var(--color-text);
-}
-
 .dash-section {
   margin-top: 20px;
 }
@@ -920,6 +914,46 @@ textarea.shipment-form__field {
   object-fit: contain;
 }
 
+/* Company logos are opaque, usually on white: in dark mode give them their own
+   rounded light tile so they read as a badge, not a white hole in the page. */
+:root[data-theme="dark"] .company-logo,
+:root[data-theme="dark"] .login-logo {
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: #fff;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .company-logo,
+  :root:not([data-theme="light"]) .login-logo {
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: #fff;
+  }
+}
+
+/* Shipment status (components/StatusChip.tsx): tone colour + icon + wording. */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 15%, transparent);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-chip svg {
+  flex: none;
+}
+
 .lang-switcher {
   display: flex;
   justify-content: flex-end;
@@ -942,7 +976,7 @@ textarea.shipment-form__field {
   font-weight: 600;
 }
 
-/* Language and theme switchers side by side at the top of each screen. */
+/* Language and theme switchers side by side at the top of the sign-in screen. */
 .top-controls {
   display: flex;
   flex-wrap: wrap;
@@ -995,6 +1029,14 @@ textarea.shipment-form__field {
   box-shadow: 0 4px 16px rgb(0 0 0 / 0.15);
   cursor: pointer;
   animation: toast-in 0.2s ease-out;
+}
+
+.toast--error {
+  border-inline-start-color: var(--color-danger);
+}
+
+.toast--notice {
+  border-inline-start-color: var(--color-warning);
 }
 
 @keyframes toast-in {
