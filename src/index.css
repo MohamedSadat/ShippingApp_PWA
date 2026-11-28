@@ -789,9 +789,213 @@ a:visited {
 .shipment-form {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
   width: 100%;
   margin-top: 12px;
+}
+
+/* Add shipment: labels always above fields, grouped, with inline errors. */
+.form-legend {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+.form-group legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-field__label {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.form-field__required {
+  color: var(--color-danger);
+}
+
+.form-field__optional {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.form-field__hint {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.form-field__error {
+  color: var(--color-danger);
+  font-size: 0.85rem;
+}
+
+.form-field--invalid .shipment-form__field {
+  border-color: var(--color-danger);
+}
+
+/* Placeholders sit where the reader starts; only typed digits run left to right. */
+.shipment-form__field::placeholder {
+  text-align: start;
+}
+
+.input-suffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-suffix .shipment-form__field {
+  padding-inline-end: 52px;
+}
+
+.input-suffix__text {
+  position: absolute;
+  inset-inline-end: 12px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
+.switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.switch-row__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.switch-row__label {
+  font-weight: 600;
+}
+
+/* A checkbox drawn as an on/off switch. */
+.switch {
+  flex: none;
+  position: relative;
+  width: 48px;
+  height: 28px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--color-border);
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.switch::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  inset-inline-start: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
+  transition: inset-inline-start 0.15s;
+}
+
+.switch:checked {
+  background: var(--color-primary-fill);
+}
+
+.switch:checked::after {
+  inset-inline-start: 23px;
+}
+
+.switch:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.fee-preview {
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+}
+
+.fee-preview .form-field__hint {
+  margin: 6px 0 0;
+}
+
+/* After saving: what next, in one place. */
+.success-sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  text-align: center;
+}
+
+.success-sheet h1 {
+  margin: 0;
+}
+
+.success-sheet__icon {
+  color: var(--tone-green);
+}
+
+.success-sheet__id {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.success-sheet__actions {
+  display: flex;
+  flex-direction: column;
+  align-self: stretch;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.success-sheet__actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.success-sheet__actions .success-sheet__primary {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
 }
 
 .shipment-form__field {
