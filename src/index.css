@@ -798,15 +798,247 @@ textarea.shipment-form__field {
   font-size: 1rem;
 }
 
-.manifest-item__phone {
-  color: var(--color-primary);
-  font-size: 0.9rem;
-  padding: 4px 0;
+/* Page title with a small logo on the far side. */
+.page-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 
-.manifest-item__street {
+.page-head h1 {
+  margin-bottom: 2px;
+}
+
+.page-head__sub {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.company-logo--small {
+  height: 40px;
+  max-width: 120px;
+}
+
+/* Sticky "8 shipments · COD to collect …" strip at the top of the Today list. */
+.summary-strip {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin: 12px -4px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.08);
+}
+
+.summary-strip__main {
+  font-weight: 700;
+}
+
+.summary-strip__meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.summary-strip__refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-primary);
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.inline-error {
+  margin: 8px 0 0;
+  color: var(--color-danger);
+  font-size: 0.9rem;
+}
+
+.list-empty {
+  margin-top: 12px;
+}
+
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+}
+
+.search-field input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 0;
+  border: none;
+  background: transparent;
+  color: var(--color-text);
+  outline: none;
+}
+
+.search-field:focus-within {
+  border-color: var(--color-primary);
+}
+
+.filter-chips {
+  display: flex;
+  gap: 6px;
+  margin: 10px -16px 0;
+  padding: 0 16px 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.filter-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-chip {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 4px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.85rem;
+}
+
+.filter-chip--active {
+  border-color: var(--color-primary-fill);
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-weight: 600;
+}
+
+.filter-chip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.filter-chip__count {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+/* Today list card: number ↔ COD, status, who, where, then Call / WhatsApp / Navigate. */
+.stop-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.stop-card__top {
+  display: flex;
+  align-self: stretch;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.stop-card .order-list__id {
+  font-size: 1.05rem;
+}
+
+.stop-card__cod {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.stop-card__no-cod {
   color: var(--color-text-muted);
   font-size: 0.85rem;
+}
+
+.stop-card__contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+  font-weight: 600;
+}
+
+.stop-card__phone {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.stop-card__address {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.stop-card__address > span {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.stop-card__area {
+  color: var(--color-text-muted);
+}
+
+.contact-actions {
+  display: flex;
+  align-self: stretch;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.contact-actions__btn,
+.contact-actions__btn:visited {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .order-list {
@@ -845,8 +1077,9 @@ textarea.shipment-form__field {
   font-weight: 600;
 }
 
+
 .order-list__status {
-  color: var(--color-primary);
+  color: var(--color-text-muted);
   font-size: 0.85rem;
 }
 
