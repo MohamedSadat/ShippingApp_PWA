@@ -249,6 +249,15 @@ a:visited {
   min-width: 0;
 }
 
+.account-card__sub {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+:root[dir="rtl"] .account-card__sub[dir="ltr"] {
+  text-align: right;
+}
+
 .account-card__role {
   color: var(--color-text-muted);
   font-size: 0.85rem;
@@ -1010,11 +1019,6 @@ a:visited {
   border-color: var(--color-danger);
 }
 
-/* Placeholders sit where the reader starts; only typed digits run left to right. */
-.shipment-form__field::placeholder {
-  text-align: start;
-}
-
 .input-suffix {
   position: relative;
   display: flex;
@@ -1069,13 +1073,19 @@ a:visited {
   content: "";
   position: absolute;
   top: 3px;
-  inset-inline-start: 3px;
+  left: 3px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.3);
-  transition: inset-inline-start 0.15s;
+  transition: left 0.15s, right 0.15s;
+}
+
+/* Physical sides: logical ones aren't resolved reliably on an input's pseudo-element. */
+:root[dir="rtl"] .switch::after {
+  left: auto;
+  right: 3px;
 }
 
 .switch:checked {
@@ -1083,7 +1093,12 @@ a:visited {
 }
 
 .switch:checked::after {
-  inset-inline-start: 23px;
+  left: 23px;
+}
+
+:root[dir="rtl"] .switch:checked::after {
+  left: auto;
+  right: 23px;
 }
 
 .switch:focus-visible {
@@ -1866,13 +1881,19 @@ a.dash-card:visited {
   border-color: var(--color-primary);
 }
 
+/* A 44px target reaching into the card's padding, so a near miss doesn't open the shipment. */
 .shipment-card__check {
   display: inline-flex;
+  flex: none;
   align-items: center;
   justify-content: center;
-  min-width: 32px;
-  min-height: 32px;
-  margin: -4px;
+  align-self: stretch;
+  min-width: 44px;
+  min-height: 44px;
+  margin: -12px;
+  margin-inline-end: -6px;
+  padding: 0 4px;
+  cursor: pointer;
 }
 
 .shipment-card__check input,

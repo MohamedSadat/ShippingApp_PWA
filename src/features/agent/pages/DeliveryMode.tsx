@@ -9,6 +9,7 @@ import { useToast } from "../../../components/Toast";
 import { addressLines } from "../../../lib/address";
 import { cleanName, cleanPhone, formatPhone, mapsHref } from "../../../lib/contact";
 import { recordScan } from "../../../lib/scanQueue";
+import { ltr } from "../../../lib/money";
 import { scanError, scanSuccess } from "../../../lib/scanFeedback";
 import {
   ApiStatusError,
@@ -102,7 +103,7 @@ export function DeliveryMode() {
     if (version) scanSuccess();
     else {
       scanError();
-      showToast(t("scanDelivery.openFailed", { id: code }), "error");
+      showToast(t("scanDelivery.openFailed", { id: ltr(code) }), "error");
     }
   }
 
@@ -127,7 +128,7 @@ export function DeliveryMode() {
       setActionResult(t("scanDelivery.actionSuccess"));
       setOrder((current) => (current ? { ...current, orderStatus: result.orderStatus } : current));
       scanSuccess();
-      showToast(t("scanDelivery.actionDone", { id: orderId, status: result.orderStatus }));
+      showToast(t("scanDelivery.actionDone", { id: ltr(orderId), status: result.orderStatus }));
       await loadActions(orderId);
     } catch (err) {
       scanError();

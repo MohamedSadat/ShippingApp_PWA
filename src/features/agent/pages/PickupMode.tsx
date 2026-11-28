@@ -4,6 +4,7 @@ import { useAuth } from "../../../auth/AuthContext";
 import { Icon } from "../../../components/Icon";
 import { useToast } from "../../../components/Toast";
 import { cleanName } from "../../../lib/contact";
+import { ltr } from "../../../lib/money";
 import { removeQueuedScan, recordScan } from "../../../lib/scanQueue";
 import { scanError, scanNotice, scanSuccess } from "../../../lib/scanFeedback";
 import { ApiStatusError, scanPickup } from "../../../lib/unifiedApi";
@@ -92,23 +93,23 @@ export function PickupMode() {
       const contactName = cleanName(result.contactName);
       if (result.moved) {
         scanSuccess();
-        showToast(t("scanPickup.collected", { id: result.orderId }));
+        showToast(t("scanPickup.collected", { id: ltr(result.orderId) }));
         add({ code: result.orderId, outcome: "collected", contactName });
       } else {
         scanNotice();
-        showToast(t("scanPickup.alreadyCollected", { id: result.orderId }), "notice");
+        showToast(t("scanPickup.alreadyCollected", { id: ltr(result.orderId) }), "notice");
         add({ code: result.orderId, outcome: "already", contactName });
       }
     } catch (err) {
       if (err instanceof ApiStatusError) {
         scanError();
-        showToast(`${scanned}: ${err.message}`, "error");
+        showToast(`${ltr(scanned)}: ${err.message}`, "error");
         add({ code: scanned, outcome: "error", message: err.message });
         return;
       }
       const queueId = await recordScan("pickup", scanned);
       scanNotice();
-      showToast(t("scanPickup.queued", { id: scanned }), "notice");
+      showToast(t("scanPickup.queued", { id: ltr(scanned) }), "notice");
       add({ code: scanned, outcome: "queued", queueId });
     } finally {
       inFlight.current.delete(scanned);
@@ -119,7 +120,7 @@ export function PickupMode() {
     if (item.queueId === undefined) return;
     await removeQueuedScan(item.queueId);
     setItems((current) => current.filter((i) => i.key !== item.key));
-    showToast(t("scanPickup.removed", { id: item.code }));
+    showToast(t("scanPickup.removed", { id: ltr(item.code) }));
   }
 
   function finish() {
@@ -181,7 +182,7 @@ export function PickupMode() {
                     type="button"
                     className="scan-session__undo"
                     onClick={() => void remove(item)}
-                    aria-label={t("scanPickup.remove", { id: item.code })}
+                    aria-label={t("scanPickup.remove", { id: ltr(item.code) })}
                   >
                     <Icon name="undo" size={18} />
                   </button>

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { ApiStatusError, getOrder } from "../../../lib/unifiedApi";
+import { ltr } from "../../../lib/money";
 
 const BarcodeScanner = lazy(() =>
   import("../../../components/BarcodeScanner").then((m) => ({ default: m.BarcodeScanner })),
@@ -32,7 +33,7 @@ export function TrackShipment() {
       // 404 is no such shipment, 403 one placed by another account: both read as not found.
       setError(
         err instanceof ApiStatusError && (err.status === 404 || err.status === 403)
-          ? t("track.notFound", { id: orderId })
+          ? t("track.notFound", { id: ltr(orderId) })
           : t("common.networkError"),
       );
     } finally {

@@ -37,8 +37,8 @@ export function Dashboard() {
     };
   }, [user]);
 
-  // The same business name My Account shows.
-  const name = cleanName(user?.company) || cleanName(user?.name) || user?.userName;
+  // The same business name My Account shows (login's userName is the display name).
+  const name = cleanName(user?.userName) || cleanName(user?.name);
 
   return (
     <section className="page">

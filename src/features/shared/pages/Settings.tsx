@@ -7,7 +7,7 @@ import { LanguageSwitcher } from "../../../components/LanguageSwitcher";
 import { ThemeSwitcher } from "../../../components/ThemeSwitcher";
 import { useToast } from "../../../components/Toast";
 import { PLAY_STORE_URL, PORTAL_URL } from "../../../lib/appLinks";
-import { cleanName } from "../../../lib/contact";
+import { cleanName, cleanPhone, formatPhone } from "../../../lib/contact";
 import { formatDateTime } from "../../../lib/formatDate";
 import { isIosNotInstalled } from "../../../lib/pushNotifications";
 import { lastScanSync, syncScanQueue, useUnsentPickups } from "../../../lib/useScanQueueSync";
@@ -67,7 +67,9 @@ export function Settings() {
     }
   }
 
-  const name = cleanName(user?.name) || user?.userName;
+  // Login's userName is the display name, name the sign-in, company the shipping company.
+  const name = cleanName(user?.userName) || cleanName(user?.name);
+  const signIn = user?.name && user.name !== name ? user.name : "";
   const company = cleanName(user?.company);
 
   return (
@@ -80,7 +82,12 @@ export function Settings() {
         </span>
         <span className="account-card__text">
           <strong>{name}</strong>
-          {company && company !== name && <span>{company}</span>}
+          {signIn && (
+            <bdi dir="ltr" className="account-card__sub">
+              {cleanPhone(signIn).length >= 10 ? formatPhone(signIn) : signIn}
+            </bdi>
+          )}
+          {company && company !== name && <span className="account-card__sub">{company}</span>}
           <span className="account-card__role">{t(`settings.role.${user?.role ?? "customer"}`)}</span>
         </span>
       </div>

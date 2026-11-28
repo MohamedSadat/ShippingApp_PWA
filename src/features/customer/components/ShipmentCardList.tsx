@@ -4,6 +4,7 @@ import { Amount } from "../../../components/Amount";
 import { StatusChip } from "../../../components/StatusChip";
 import { cleanName } from "../../../lib/contact";
 import { formatDate } from "../../../lib/formatDate";
+import { ltr } from "../../../lib/money";
 import { needsAttention, statusTone } from "../../../lib/statusTone";
 import type { ShipOrderDto } from "../../../lib/unifiedApi";
 import { governorateName } from "../shipmentFields";
@@ -39,7 +40,7 @@ export function ShipmentCardList({ orders, selected, onToggle }: ShipmentCardLis
                 type="checkbox"
                 checked={isSelected}
                 onChange={() => onToggle(order)}
-                aria-label={t("shipmentGrid.selectOne", { id: order.orderId })}
+                aria-label={t("shipmentGrid.selectOne", { id: ltr(order.orderId) })}
               />
             </label>
             <div className="shipment-card__body">

@@ -239,8 +239,8 @@ export const en = {
     payment: "Payment",
     shipmentOrFee: "Shipment / fee",
     business: "Business",
-    contact: "Contact",
-    userName: "Sign-in",
+    signIn: "Signs in with",
+    shippingCompany: "Shipping company",
     nextStatement: "Next statement expected {{date}}",
   },
   settings: {

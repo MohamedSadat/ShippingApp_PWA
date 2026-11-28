@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { Amount, DirectedAmount } from "../../../components/Amount";
-import { cleanName } from "../../../lib/contact";
+import { cleanName, cleanPhone, formatPhone } from "../../../lib/contact";
 import { formatDate } from "../../../lib/formatDate";
 import { moneyText } from "../../../lib/money";
 import { openPdfInNewTab } from "../../../lib/pdfFile";
@@ -64,8 +64,11 @@ export function MyAccount() {
   }, [user, t]);
 
   const owed = balance === null ? 0 : yours(balance);
-  const business = cleanName(user?.company);
-  const contact = cleanName(user?.name);
+  // Login fills userName with the account's display name (the business), name with the
+  // sign-in (a merchant's phone) and company with the shipping company it belongs to.
+  const business = cleanName(user?.userName);
+  const signIn = user?.name ?? "";
+  const shippingCompany = cleanName(user?.company);
 
   return (
     <section className="page">
@@ -77,18 +80,18 @@ export function MyAccount() {
             <dd>{business}</dd>
           </div>
         )}
-        {contact && contact !== business && (
+        {signIn && signIn !== business && (
           <div className="info-rows__row">
-            <dt>{t("myAccount.contact")}</dt>
-            <dd>{contact}</dd>
+            <dt>{t("myAccount.signIn")}</dt>
+            <dd>
+              <bdi dir="ltr">{cleanPhone(signIn).length >= 10 ? formatPhone(signIn) : signIn}</bdi>
+            </dd>
           </div>
         )}
-        {user?.userName && (
+        {shippingCompany && (
           <div className="info-rows__row">
-            <dt>{t("myAccount.userName")}</dt>
-            <dd>
-              <bdi dir="ltr">{user.userName}</bdi>
-            </dd>
+            <dt>{t("myAccount.shippingCompany")}</dt>
+            <dd>{shippingCompany}</dd>
           </div>
         )}
       </dl>

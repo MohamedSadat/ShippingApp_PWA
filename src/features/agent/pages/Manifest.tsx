@@ -138,7 +138,7 @@ export function Manifest() {
     });
   }, [orders, query, tone]);
 
-  const agentName = cleanName(user?.name || user?.userName);
+  const agentName = cleanName(user?.userName) || cleanName(user?.name);
   const hasMore = snapshot?.hasMore ?? false;
   // Count what's listed; the server total only while more pages are still to come.
   const stopCount = hasMore ? (snapshot?.totalCount ?? 0) : orders.length;

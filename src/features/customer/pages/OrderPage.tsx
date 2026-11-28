@@ -8,6 +8,7 @@ import { formatDate } from "../../../lib/formatDate";
 import { EditShipmentForm } from "../components/EditShipmentForm";
 import { governorateName } from "../shipmentFields";
 import { Amount } from "../../../components/Amount";
+import { ltr } from "../../../lib/money";
 
 export function OrderPage() {
   const { user } = useAuth();
@@ -81,7 +82,7 @@ export function OrderPage() {
       <button type="button" className="order-detail__back" onClick={() => navigate(-1)}>
         {t("common.back")}
       </button>
-      <h1>{t("orderPage.title", { orderId })}</h1>
+      <h1>{t("orderPage.title", { orderId: ltr(orderId ?? "") })}</h1>
 
       {loading && <p className="card__placeholder">{t("orderPage.loading")}</p>}
       {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}

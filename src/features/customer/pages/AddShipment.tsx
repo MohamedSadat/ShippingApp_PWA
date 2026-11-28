@@ -34,6 +34,7 @@ const MOBILE = /^01[0125]\d{8}$/;
 
 type FieldName = "phone" | "phone2" | "contactName" | "gov" | "zone" | "street" | "cod";
 type Errors = Partial<Record<FieldName, string>>;
+const FIELD_ORDER: FieldName[] = ["phone", "phone2", "contactName", "gov", "zone", "street", "cod"];
 
 /** A field with its label always above it (never a placeholder standing in for one). */
 function Field({
@@ -97,7 +98,8 @@ export function AddShipment() {
   const [codAmount, setCodAmount] = useState("");
   const [allowOpen, setAllowOpen] = useState(false);
 
-  const [errors, setErrors] = useState<Errors>({});
+  // Errors show once Save was tried, then follow the fields as they are fixed.
+  const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [freightAmount, setFreightAmount] = useState<number | null>(null);
@@ -191,11 +193,11 @@ export function AddShipment() {
     e.preventDefault();
     if (!user || !draft) return;
     const found = validate();
-    setErrors(found);
-    if (Object.keys(found).length > 0) {
-      // Take the courier straight to the first field that needs fixing.
-      const first = formRef.current?.querySelector<HTMLElement>(".form-field--invalid input, .form-field--invalid select");
-      first?.focus();
+    setSubmitted(true);
+    const firstInvalid = FIELD_ORDER.find((name) => found[name]);
+    if (firstInvalid) {
+      // Straight to the first field that needs fixing (in form order).
+      formRef.current?.querySelector<HTMLElement>(`#ship-${firstInvalid}`)?.focus();
       return;
     }
     setSubmitError(null);
@@ -241,7 +243,7 @@ export function AddShipment() {
     setContactPhone2("");
     setDescription("");
     setCodAmount("");
-    setErrors({});
+    setSubmitted(false);
     if (draft) setAllowOpen(draft.allowOpen);
   }
 
@@ -257,6 +259,7 @@ export function AddShipment() {
 
   const govLabel = (gov: ShipGov) => (i18n.language === "ar" ? gov.name : gov.nameEn || gov.name);
   const cod = Number(codAmount) || 0;
+  const errors: Errors = submitted ? validate() : {};
   const errorProps = (name: FieldName) =>
     errors[name] ? { "aria-invalid": true as const, "aria-describedby": `ship-${name}-error` } : {};
 
