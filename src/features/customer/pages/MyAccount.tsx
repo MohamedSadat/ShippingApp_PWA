@@ -1,7 +1,10 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
+import { Amount, DirectedAmount } from "../../../components/Amount";
+import { cleanName } from "../../../lib/contact";
 import { formatDate } from "../../../lib/formatDate";
+import { moneyText } from "../../../lib/money";
 import { openPdfInNewTab } from "../../../lib/pdfFile";
 import {
   getAccountBalance,
@@ -17,9 +20,9 @@ import {
 type Tab = "statements" | "transactions";
 
 // The ledger keeps what the company owes a merchant as a negative amount. This
-// page shows the merchant's side, like the statement PDF: owed to you is positive.
+// page shows the merchant's side, like the statement PDF: owed to you is positive,
+// and every amount says which way it goes (لك / عليك) instead of carrying a sign.
 const yours = (ledger: number) => -ledger;
-const money = (value: number) => value.toFixed(2);
 
 // yyyy-mm-dd in local time, for <input type="date"> and the API's from/to.
 function isoDate(date: Date): string {
@@ -34,7 +37,8 @@ export function MyAccount() {
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tab, setTab] = useState<Tab>("statements");
+  // Movements always have rows; statements are empty for most of the week.
+  const [tab, setTab] = useState<Tab>("transactions");
 
   useEffect(() => {
     if (!user?.partnerAccountId) {
@@ -60,25 +64,45 @@ export function MyAccount() {
   }, [user, t]);
 
   const owed = balance === null ? 0 : yours(balance);
+  const business = cleanName(user?.company);
+  const contact = cleanName(user?.name);
 
   return (
     <section className="page">
       <h1>{t("myAccount.title")}</h1>
-      <div className="card">
-        <p className="card__placeholder">{user?.name}</p>
-        <p className="card__placeholder">{user?.company}</p>
-      </div>
+      <dl className="card info-rows">
+        {business && (
+          <div className="info-rows__row">
+            <dt>{t("myAccount.business")}</dt>
+            <dd>{business}</dd>
+          </div>
+        )}
+        {contact && contact !== business && (
+          <div className="info-rows__row">
+            <dt>{t("myAccount.contact")}</dt>
+            <dd>{contact}</dd>
+          </div>
+        )}
+        {user?.userName && (
+          <div className="info-rows__row">
+            <dt>{t("myAccount.userName")}</dt>
+            <dd>
+              <bdi dir="ltr">{user.userName}</bdi>
+            </dd>
+          </div>
+        )}
+      </dl>
 
-      <div className="card">
-        <h2 className="order-detail__section-title">{t("myAccount.balance")}</h2>
+      <div className="card balance-card">
+        <h2 className="balance-card__label">{t("money.yourBalance")}</h2>
         {loading && <p className="card__placeholder">{t("common.loading")}</p>}
-        {!loading && error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
+        {!loading && error && <p className="inline-error">{error}</p>}
         {!loading && !error && !user?.partnerAccountId && (
           <p className="card__placeholder">{t("myAccount.balanceUnavailable")}</p>
         )}
         {!loading && !error && user?.partnerAccountId && balance !== null && (
           <>
-            <p className="account-balance__amount">{money(Math.abs(owed))}</p>
+            <DirectedAmount value={owed} positiveMeans="owedToYou" className="balance-card__amount" />
             <p className="card__placeholder">
               {owed > 0 ? t("myAccount.owedToYou") : owed < 0 ? t("myAccount.youOwe") : t("myAccount.allSettled")}
             </p>
@@ -91,19 +115,19 @@ export function MyAccount() {
           <div className="segmented" role="group" aria-label={t("myAccount.title")}>
             <button
               type="button"
-              aria-pressed={tab === "statements"}
-              className={`segmented__btn${tab === "statements" ? " segmented__btn--active" : ""}`}
-              onClick={() => setTab("statements")}
-            >
-              {t("myAccount.statements")}
-            </button>
-            <button
-              type="button"
               aria-pressed={tab === "transactions"}
               className={`segmented__btn${tab === "transactions" ? " segmented__btn--active" : ""}`}
               onClick={() => setTab("transactions")}
             >
               {t("myAccount.transactions")}
+            </button>
+            <button
+              type="button"
+              aria-pressed={tab === "statements"}
+              className={`segmented__btn${tab === "statements" ? " segmented__btn--active" : ""}`}
+              onClick={() => setTab("statements")}
+            >
+              {t("myAccount.statements")}
             </button>
           </div>
 
@@ -112,8 +136,6 @@ export function MyAccount() {
           ) : (
             <Transactions apiKey={user.apiKey} accountId={user.partnerAccountId} />
           )}
-
-          <p className="cod-note">{t("myAccount.sideNote")}</p>
         </>
       )}
     </section>
@@ -125,9 +147,17 @@ interface AccountProps {
   accountId: string;
 }
 
+/** Statements are weekly: the next one covers the week after the latest period. */
+function nextStatementDate(latest: PartnerStatement | undefined): Date | null {
+  if (!latest) return null;
+  const next = new Date(latest.periodTo);
+  next.setDate(next.getDate() + 7);
+  return next;
+}
+
 // The weekly statements the company has sent, each with its PDF.
 function Statements({ apiKey, accountId }: AccountProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [statements, setStatements] = useState<PartnerStatement[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [printing, setPrinting] = useState<string | null>(null);
@@ -166,7 +196,7 @@ function Statements({ apiKey, accountId }: AccountProps) {
     }
   }
 
-  if (error) return <p style={{ color: "var(--color-danger)", marginTop: 12 }}>{error}</p>;
+  if (error) return <p className="inline-error">{error}</p>;
   if (statements === null) return <p className="card__placeholder">{t("common.loading")}</p>;
   if (statements.length === 0)
     return (
@@ -175,45 +205,54 @@ function Statements({ apiKey, accountId }: AccountProps) {
       </div>
     );
 
+  const next = nextStatementDate(statements[0]);
+
   return (
-    <ul className="order-list">
-      {statements.map((s) => (
-        <li key={s.statementId} className="order-list__item">
-          <div className="order-list__row">
-            <span className="order-list__id">
-              {formatDate(s.periodFrom)} – {formatDate(s.periodTo)}
-            </span>
-            <span className="order-list__status">{statusText(s.status)}</span>
-          </div>
-          <div className="order-list__row">
-            <span>
-              {t("myAccount.weekClosing")}: {money(yours(s.closing))}
-            </span>
-            <span>{t("myAccount.dueOn", { date: formatDate(s.dueDate) })}</span>
-          </div>
-          <div className="order-list__row">
-            <span className="cod-amount">
-              {t("myAccount.stillDue")}: {money(yours(s.unpaid))}
-            </span>
-            {s.heldAmount !== 0 && (
-              <span>
-                {t("myAccount.held")}: {money(s.heldAmount)}
-              </span>
-            )}
-          </div>
-          {s.overdue > 0 && (
+    <>
+      {next && <p className="cod-summary list-empty">{t("myAccount.nextStatement", { date: formatDate(next) })}</p>}
+      <ul className="order-list">
+        {statements.map((s) => (
+          <li key={s.statementId} className="order-list__item">
             <div className="order-list__row">
-              <span style={{ color: "var(--color-danger)" }}>{t("myAccount.overdue", { amount: money(s.overdue) })}</span>
+              <span className="order-list__id">
+                <bdi dir="ltr">
+                  {formatDate(s.periodFrom)} – {formatDate(s.periodTo)}
+                </bdi>
+              </span>
+              <span className="order-list__status">{statusText(s.status)}</span>
             </div>
-          )}
-          <div className="order-list__pagination" style={{ justifyContent: "flex-end", marginTop: 8 }}>
-            <button type="button" disabled={printing !== null} onClick={() => openPdf(s.statementId)}>
-              {printing === s.statementId ? t("myAccount.openingPdf") : t("myAccount.openPdf")}
-            </button>
-          </div>
-        </li>
-      ))}
-    </ul>
+            <div className="order-list__row">
+              <span>{t("myAccount.weekClosing")}</span>
+              <DirectedAmount value={yours(s.closing)} positiveMeans="owedToYou" />
+            </div>
+            <div className="order-list__row">
+              <span>
+                {t("myAccount.stillDue")} · {t("myAccount.dueOn", { date: formatDate(s.dueDate) })}
+              </span>
+              <DirectedAmount value={yours(s.unpaid)} positiveMeans="owedToYou" className="cod-amount" />
+            </div>
+            {s.heldAmount !== 0 && (
+              <div className="order-list__row">
+                <span>{t("myAccount.held")}</span>
+                <Amount value={s.heldAmount} />
+              </div>
+            )}
+            {s.overdue > 0 && (
+              <div className="order-list__row">
+                <span style={{ color: "var(--color-danger)" }}>
+                  {t("myAccount.overdue", { amount: moneyText(s.overdue, i18n.language) })}
+                </span>
+              </div>
+            )}
+            <div className="order-list__pagination" style={{ justifyContent: "flex-end", marginTop: 8 }}>
+              <button type="button" disabled={printing !== null} onClick={() => openPdf(s.statementId)}>
+                {printing === s.statementId ? t("myAccount.openingPdf") : t("myAccount.openPdf")}
+              </button>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </>
   );
 }
 
@@ -253,24 +292,29 @@ function Transactions({ apiKey, accountId }: AccountProps) {
 
   return (
     <>
-      <form className="scan-form" onSubmit={show}>
-        <label htmlFor="trans-from">{t("myAccount.from")}</label>
-        <input id="trans-from" type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} required />
-        <label htmlFor="trans-to">{t("myAccount.to")}</label>
-        <input id="trans-to" type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} required />
+      <form className="date-range" onSubmit={show}>
+        <label>
+          <span>{t("myAccount.from")}</span>
+          <input type="date" value={from} max={to} onChange={(e) => setFrom(e.target.value)} required />
+        </label>
+        <label>
+          <span>{t("myAccount.to")}</span>
+          <input type="date" value={to} min={from} onChange={(e) => setTo(e.target.value)} required />
+        </label>
         <button type="submit" disabled={loading}>
           {t("myAccount.show")}
         </button>
       </form>
 
-      {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
+      {error && <p className="inline-error">{error}</p>}
       {loading && <p className="card__placeholder">{t("common.loading")}</p>}
 
       {!loading && !error && ledger && (
         <>
-          <p className="cod-summary">
-            {t("myAccount.openingBalance")}: {money(yours(ledger.opening))}
-          </p>
+          <div className="ledger-edge">
+            <span>{t("myAccount.openingBalance")}</span>
+            <DirectedAmount value={yours(ledger.opening)} positiveMeans="owedToYou" />
+          </div>
           {ledger.rows.length === 0 && (
             <div className="card" style={{ marginTop: 12 }}>
               <p className="card__placeholder">{t("myAccount.noTransactions")}</p>
@@ -281,28 +325,31 @@ function Transactions({ apiKey, accountId }: AccountProps) {
               {ledger.rows.map((row, index) => (
                 <li key={`${index}-${row.documentId ?? ""}`} className="order-list__item">
                   <div className="order-list__row">
-                    <span className="order-list__id">{row.invoice ?? row.documentId}</span>
+                    <bdi dir="ltr" className="order-list__id">
+                      {row.invoice ?? row.documentId}
+                    </bdi>
                     <span className="order-list__status">
                       {row.transType === PartnerTransType.Payment ? t("myAccount.payment") : t("myAccount.shipmentOrFee")}
                     </span>
                   </div>
                   <div className="order-list__row">
                     <span>{formatDate(row.transDate)}</span>
-                    <span className="cod-amount">{money(yours(row.amount))}</span>
+                    <DirectedAmount value={yours(row.amount)} positiveMeans="owedToYou" className="cod-amount" />
                   </div>
                   <div className="order-list__row">
                     <span className="order-list__contact">{row.text}</span>
-                    <span>
-                      {t("myAccount.balanceAfter")}: {money(yours(row.balance))}
+                    <span className="ledger-after">
+                      {t("myAccount.balanceAfter")} <DirectedAmount value={yours(row.balance)} positiveMeans="owedToYou" />
                     </span>
                   </div>
                 </li>
               ))}
             </ul>
           )}
-          <p className="cod-summary">
-            {t("myAccount.closingBalance")}: {money(yours(ledger.closing))}
-          </p>
+          <div className="ledger-edge">
+            <span>{t("myAccount.closingBalance")}</span>
+            <DirectedAmount value={yours(ledger.closing)} positiveMeans="owedToYou" />
+          </div>
         </>
       )}
     </>

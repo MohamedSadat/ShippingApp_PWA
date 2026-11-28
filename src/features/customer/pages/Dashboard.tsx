@@ -4,58 +4,51 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
 import { CompanyLogo } from "../../../components/CompanyLogo";
 import { Icon, type IconName } from "../../../components/Icon";
-import { getPartnerPendingOrders, type ShipOrderDto } from "../../../lib/unifiedApi";
+import { cleanName } from "../../../lib/contact";
+import { getPartnerPendingOrders } from "../../../lib/unifiedApi";
 import { BalanceStrip } from "../components/BalanceStrip";
 import { DashboardStats } from "../components/DashboardStats";
-import { PrintableShipmentGrid } from "../components/PrintableShipmentGrid";
 
-const PAGE_SIZE = 30;
-
-const ROWS: { to: string; icon: IconName; labelKey: string }[] = [
+const ROWS: { to: string; icon: IconName; labelKey: string; pending?: boolean }[] = [
+  { to: "/customer/shipments?segment=active", icon: "box", labelKey: "dashboard.inProgress", pending: true },
   { to: "/customer/shipments/new", icon: "plus", labelKey: "dashboard.newShipment" },
   { to: "/customer/track", icon: "qr", labelKey: "dashboard.track" },
-  { to: "/customer/shipments", icon: "box", labelKey: "dashboard.myShipments" },
   { to: "/customer/account", icon: "wallet", labelKey: "dashboard.account" },
 ];
 
 export function Dashboard() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const [orders, setOrders] = useState<ShipOrderDto[]>([]);
-  const [totalCount, setTotalCount] = useState(0);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // How many shipments are in progress; the list itself lives under My shipments.
+  const [pendingCount, setPendingCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
-    setLoading(true);
-    setError(null);
-    getPartnerPendingOrders(user.apiKey, pageNumber, PAGE_SIZE)
+    getPartnerPendingOrders(user.apiKey, 1, 1)
       .then((result) => {
-        if (cancelled) return;
-        setOrders(result.data);
-        setTotalCount(result.totalCount);
+        if (!cancelled) setPendingCount(result.totalCount);
       })
       .catch(() => {
-        if (!cancelled) setError(t("common.networkError"));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setPendingCount(null);
       });
     return () => {
       cancelled = true;
     };
-  }, [user, pageNumber, t]);
+  }, [user]);
+
+  // The same business name My Account shows.
+  const name = cleanName(user?.company) || cleanName(user?.name) || user?.userName;
 
   return (
     <section className="page">
-      <div className="dash-header">
-        <CompanyLogo url={user?.companyLogoUrl} alt={user?.company} className="company-logo" />
+      <div className="page-head">
+        <div>
+          <h1>{t("dashboard.title")}</h1>
+          {name && <p className="page-head__sub">{t("dashboard.welcome", { name })}</p>}
+        </div>
+        <CompanyLogo url={user?.companyLogoUrl} alt={user?.company} className="company-logo company-logo--small" />
       </div>
-      <h1>{t("dashboard.title")}</h1>
-      <p>{t("dashboard.welcome", { name: user?.userName })}</p>
 
       <DashboardStats />
       <BalanceStrip />
@@ -69,35 +62,12 @@ export function Dashboard() {
             <Link key={row.to} to={row.to} className="dash-row">
               <Icon name={row.icon} className="dash-row__icon" />
               <span className="dash-row__label">{t(row.labelKey)}</span>
+              {row.pending && pendingCount !== null && <span className="dash-row__count">{pendingCount}</span>}
               <Icon name="chevron" size={20} className="dash-row__chevron" />
             </Link>
           ))}
         </nav>
       </section>
-
-      <h2 className="dashboard-stats__section-title">
-        {!loading && !error ? t("dashboard.pendingWithCount", { total: totalCount }) : t("dashboard.pending")}
-      </h2>
-
-      {loading && <p className="card__placeholder">{t("dashboard.loading")}</p>}
-      {error && <p style={{ color: "var(--color-danger)" }}>{error}</p>}
-
-      {!loading && !error && orders.length === 0 && (
-        <div className="card">
-          <p className="card__placeholder">{t("dashboard.noShipments")}</p>
-        </div>
-      )}
-
-      {!loading && !error && (
-        <PrintableShipmentGrid
-          orders={orders}
-          totalCount={totalCount}
-          pageNumber={pageNumber}
-          pageSize={PAGE_SIZE}
-          onPageChange={setPageNumber}
-          ariaLabel={t("dashboard.pending")}
-        />
-      )}
     </section>
   );
 }

@@ -10,6 +10,9 @@ export const en = {
   money: {
     owedToYou: "to you",
     youOwe: "you owe",
+    yourBalance: "Your balance with the company",
+    nextPayout: "Next payout",
+    noPayoutDue: "Nothing due yet",
   },
   nav: {
     dashboard: "Home",
@@ -74,6 +77,9 @@ export const en = {
     track: "Track shipment",
     myShipments: "My shipments",
     account: "Account & balance",
+    inProgress: "Shipments in progress",
+    byOrderDate: "Counted by the date each shipment was created.",
+    needsAttention: "Needs your decision",
   },
   track: {
     title: "Track shipment",
@@ -232,7 +238,10 @@ export const en = {
     noTransactions: "No transactions in these dates.",
     payment: "Payment",
     shipmentOrFee: "Shipment / fee",
-    sideNote: "Amounts are from your side: a positive amount is what the company owes you.",
+    business: "Business",
+    contact: "Contact",
+    userName: "Sign-in",
+    nextStatement: "Next statement expected {{date}}",
   },
   settings: {
     title: "Settings",

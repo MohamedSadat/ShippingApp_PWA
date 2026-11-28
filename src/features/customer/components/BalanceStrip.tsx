@@ -2,24 +2,27 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "../../../auth/AuthContext";
-import { getAccountBalance, getStatements } from "../../../lib/unifiedApi";
+import { DirectedAmount } from "../../../components/Amount";
+import { formatDate } from "../../../lib/formatDate";
+import { getAccountBalance, getStatements, type PartnerStatement } from "../../../lib/unifiedApi";
 
 /** A figure not loaded yet (undefined) or that failed to load (null). */
-type Figure = number | null | undefined;
+type Figure<T> = T | null | undefined;
 
 // The ledger keeps what the company owes a merchant as a negative amount; this strip shows
 // the merchant's side, like My Account: owed to you is positive.
 const yours = (ledger: number) => -ledger;
 
 /**
- * The account's balance and what the latest statement leaves unpaid, from the merchant's
- * side. Opens My Account. Hidden for a user with no partner account.
+ * "Your balance with the company" and the next payout (what the latest weekly statement
+ * leaves unpaid, and when it falls due), in the same words as My Account. Opens My Account.
+ * Hidden for a user with no partner account.
  */
 export function BalanceStrip() {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const [balance, setBalance] = useState<Figure>();
-  const [due, setDue] = useState<Figure>();
+  const [balance, setBalance] = useState<Figure<number>>();
+  const [latest, setLatest] = useState<Figure<PartnerStatement | false>>();
   const accountId = user?.partnerAccountId;
 
   useEffect(() => {
@@ -34,8 +37,8 @@ export function BalanceStrip() {
             ? yours(balanceResult.value)
             : null,
         );
-        // Latest week first; no statement yet means nothing is due.
-        setDue(statementsResult.status === "fulfilled" ? yours(statementsResult.value?.[0]?.unpaid ?? 0) : null);
+        // Latest week first; false = no statement yet.
+        setLatest(statementsResult.status === "fulfilled" ? (statementsResult.value?.[0] ?? false) : null);
       },
     );
     return () => {
@@ -45,18 +48,36 @@ export function BalanceStrip() {
 
   if (!accountId) return null;
 
-  const show = (figure: Figure) => (figure === undefined ? "…" : figure === null ? "—" : figure.toFixed(2));
+  const placeholder = (figure: unknown) => (figure === undefined ? "…" : "—");
+  const payout = latest ? yours(latest.unpaid) : 0;
 
   return (
     <Link to="/customer/account" className="dash-balance">
       <span className="dash-balance__column">
-        <span className="dash-balance__label">{t("dashboard.totalBalance")}</span>
-        <span className="dash-balance__value">{show(balance)}</span>
+        <span className="dash-balance__label">{t("money.yourBalance")}</span>
+        <span className="dash-balance__value">
+          {typeof balance === "number" ? (
+            <DirectedAmount value={balance} positiveMeans="owedToYou" />
+          ) : (
+            placeholder(balance)
+          )}
+        </span>
       </span>
       <span className="dash-balance__divider" aria-hidden="true" />
       <span className="dash-balance__column">
-        <span className="dash-balance__label">{t("dashboard.dueForPayment")}</span>
-        <span className="dash-balance__value">{show(due)}</span>
+        <span className="dash-balance__label">{t("money.nextPayout")}</span>
+        <span className="dash-balance__value">
+          {latest && payout > 0 ? (
+            <DirectedAmount value={payout} positiveMeans="owedToYou" />
+          ) : latest === false || (latest && payout <= 0) ? (
+            <span className="dash-balance__none">{t("money.noPayoutDue")}</span>
+          ) : (
+            placeholder(latest)
+          )}
+        </span>
+        {latest && payout > 0 && (
+          <span className="dash-balance__sub">{t("myAccount.dueOn", { date: formatDate(latest.dueDate) })}</span>
+        )}
       </span>
     </Link>
   );

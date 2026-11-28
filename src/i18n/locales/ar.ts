@@ -12,6 +12,9 @@ export const ar: TranslationSchema = {
   money: {
     owedToYou: "لك",
     youOwe: "عليك",
+    yourBalance: "رصيدك لدى الشركة",
+    nextPayout: "التحويل القادم",
+    noPayoutDue: "لا يوجد مستحق بعد",
   },
   nav: {
     dashboard: "الرئيسية",
@@ -76,6 +79,9 @@ export const ar: TranslationSchema = {
     track: "تتبع شحنة",
     myShipments: "شحناتي",
     account: "الحساب والرصيد",
+    inProgress: "الشحنات قيد التنفيذ",
+    byOrderDate: "العدد حسب تاريخ إنشاء الشحنة.",
+    needsAttention: "تحتاج قرارك",
   },
   track: {
     title: "تتبع شحنة",
@@ -234,7 +240,10 @@ export const ar: TranslationSchema = {
     noTransactions: "لا توجد حركات في هذه الفترة.",
     payment: "دفعة",
     shipmentOrFee: "شحنة / رسوم",
-    sideNote: "المبالغ من جهتك: المبلغ الموجب هو ما تستحقه لدى الشركة.",
+    business: "النشاط التجاري",
+    contact: "اسم المسؤول",
+    userName: "اسم الدخول",
+    nextStatement: "الكشف القادم متوقع {{date}}",
   },
   settings: {
     title: "الإعدادات",

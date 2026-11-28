@@ -1102,15 +1102,16 @@ textarea.shipment-form__field {
   text-align: center;
 }
 
+/* Each tile in its status colour: red for failed, green for delivered… */
 .dash-card__badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  background: var(--color-primary-fill);
-  color: var(--color-on-primary);
+  background: color-mix(in srgb, var(--tone, var(--color-primary)) 18%, transparent);
+  color: var(--tone, var(--color-primary));
 }
 
 .dash-card__label {
@@ -1163,10 +1164,162 @@ textarea.shipment-form__field {
 }
 
 .dash-balance__value {
-  color: var(--color-primary);
-  font-size: 1.25rem;
+  color: var(--color-text);
+  font-size: 1.15rem;
   font-weight: 700;
 }
+.dash-basis {
+  margin: 6px 0 0;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+a.dash-card,
+a.dash-card:visited {
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.dash-card--zero {
+  opacity: 0.5;
+}
+
+.attention-card {
+  display: flex;
+  flex-direction: column;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid color-mix(in srgb, var(--tone-red) 45%, var(--color-border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--tone-red) 8%, var(--color-surface));
+}
+
+.attention-card__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  color: var(--tone-red);
+  font-size: 1rem;
+}
+
+.attention-card__row,
+.attention-card__row:visited {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.attention-card__row > span:first-child {
+  flex: 1;
+}
+
+.attention-card__count {
+  font-weight: 800;
+}
+
+.dash-balance__value .directed-amount {
+  justify-content: center;
+}
+
+.dash-balance__none {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.dash-balance__sub {
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+}
+
+.dash-row__count {
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--color-bg);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Labelled rows (My Account identity). */
+.info-rows {
+  margin-bottom: 0;
+}
+
+.info-rows__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+}
+
+.info-rows__row dt {
+  color: var(--color-text-muted);
+}
+
+.info-rows__row dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: end;
+}
+
+.date-range {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.date-range label {
+  flex: 1 1 130px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+}
+
+.date-range input {
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+.date-range button {
+  min-height: 42px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary-fill);
+  color: var(--color-on-primary);
+  font-weight: 600;
+}
+
+.ledger-edge {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.ledger-after {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+}
+
 
 .dash-rows {
   display: flex;
